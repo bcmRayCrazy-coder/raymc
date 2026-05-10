@@ -1,0 +1,11 @@
+[package]
+name = "raymc"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+iced = { version="0.14.0", features=["image"] }
+iced_anim = "0.3.1"
+image = "0.25.10"
+souvlaki = "0.8.3"
+tokio = "1.52.3"
