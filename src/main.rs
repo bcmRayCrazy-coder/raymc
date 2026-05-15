@@ -1,4 +1,5 @@
 mod app;
+mod embed;
 use app::app::App;
 use iced::{
     Font, Theme, application,
@@ -15,7 +16,7 @@ fn main() -> iced::Result {
 
     let app_settings = Settings {
         // fullscreen: true,
-        icon: load_app_icon("./res/icon.png"),
+        icon: load_app_icon("./assets/icon.png"),
         ..Default::default()
     };
 

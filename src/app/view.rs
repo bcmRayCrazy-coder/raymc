@@ -1,16 +1,18 @@
 use iced::Element;
 
 use crate::app::{
-    app::{App, ViewPage},
+    app::{App, ViewPageName},
     message::Message,
 };
+
+// TODO: Intergrate to ViewPage
 
 impl App {
     pub fn view(&self) -> Element<'_, Message> {
         match self.view_page {
-            ViewPage::Launch => self.launch_view(),
+            ViewPageName::Launch => self.launch_view(),
 
-            ViewPage::Counter => self.counter_view(),
+            ViewPageName::Counter => self.counter_view(),
         }
     }
 }

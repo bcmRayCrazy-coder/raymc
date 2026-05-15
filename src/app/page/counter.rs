@@ -2,9 +2,11 @@ use iced::{Element, Task, widget};
 use iced_anim::{AnimationBuilder, Easing};
 
 use crate::app::{
-    app::{App, QuickKey, ViewPage},
+    app::{App, QuickKey, ViewPageName},
     message::Message,
 };
+
+// TODO: Intergrate to ViewPage
 
 impl App {
     pub fn counter_view(&self) -> Element<'_, Message> {
@@ -26,7 +28,7 @@ impl App {
                     widget::button("Inc").on_press(Message::CounterIncrement),
                     widget::button("Dec").on_press(Message::CounterDecreasement),
                     widget::button("Go to Launch Page")
-                        .on_press(Message::PageJump(ViewPage::Launch)),
+                        .on_press(Message::PageJump(ViewPageName::Launch)),
                     animated_size_text,
                 ]
                 .spacing(10),

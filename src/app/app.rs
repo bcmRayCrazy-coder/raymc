@@ -12,8 +12,8 @@ pub enum QuickKey {
     KEYM,
 }
 
-#[derive(Debug, Clone)]
-pub enum ViewPage {
+#[derive(Debug, Clone, PartialEq, Eq, Hash)]
+pub enum ViewPageName {
     Launch,
     // For Test Purpose
     Counter,
@@ -21,7 +21,7 @@ pub enum ViewPage {
 
 pub struct App {
     pub val: f32,
-    pub view_page: ViewPage,
+    pub view_page: ViewPageName,
 }
 
 impl App {
@@ -29,7 +29,7 @@ impl App {
         (
             App {
                 val: 10.0,
-                view_page: ViewPage::Launch,
+                view_page: ViewPageName::Launch,
             },
             Task::none(),
         )

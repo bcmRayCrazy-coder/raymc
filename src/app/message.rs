@@ -1,9 +1,9 @@
-use crate::app::app::{QuickKey, ViewPage};
+use crate::app::app::{QuickKey, ViewPageName};
 
 #[derive(Debug, Clone)]
 pub enum Message {
     QuickKeyAction(QuickKey),
-    PageJump(ViewPage),
+    PageJump(ViewPageName),
 
     CounterIncrement,
     CounterDecreasement,

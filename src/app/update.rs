@@ -4,16 +4,18 @@ use iced::{
 };
 
 use crate::app::{
-    app::{App, QuickKey, ViewPage},
+    app::{App, QuickKey, ViewPageName},
     message::Message,
 };
+
+// TODO: Intergrate to ViewPage
 
 impl App {
     pub fn update(&mut self, message: Message) -> Task<Message> {
         match self.view_page {
-            ViewPage::Launch => self.launch_update(message),
+            ViewPageName::Launch => self.launch_update(message),
 
-            ViewPage::Counter => self.counter_update(message),
+            ViewPageName::Counter => self.counter_update(message),
         }
     }
 
