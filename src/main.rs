@@ -20,7 +20,7 @@ fn main() -> iced::Result {
         ..Default::default()
     };
 
-    application(App::new, App::update, App::view)
+    application(App::boot, App::update, App::view)
         .theme(|_app: &App| Theme::Dark)
         .subscription(App::subscription)
         .antialiasing(true)
