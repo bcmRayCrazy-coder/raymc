@@ -1,10 +1,13 @@
 use iced::{Element, Task, widget};
 use iced_anim::{AnimationBuilder, Easing};
 
-use crate::app::{
-    app::{App, QuickKey, ViewPageName},
-    message::{Message, ViewPageManagerMessage},
-    page::page::ViewPage,
+use crate::{
+    app::{
+        app::{App, QuickKey, ViewPageName},
+        message::{Message, ViewPageManagerMessage},
+        page::page::ViewPage,
+    },
+    cache, embed,
 };
 
 // TODO: Intergrate to ViewPage
@@ -20,7 +23,7 @@ impl CounterPage {
 }
 
 impl ViewPage for CounterPage {
-    fn initialize(&mut self) {}
+    fn on_page_show(&mut self) {}
 
     fn view(&self) -> Element<'_, Message> {
         let animated_text = AnimationBuilder::new(self.val, |val| {
@@ -40,6 +43,7 @@ impl ViewPage for CounterPage {
         widget::container(
             widget::column![
                 widget::row![
+                    widget::image(cache::get_cached_image_handle("icon.png").unwrap()).height(60),
                     widget::button("Inc").on_press(Message::CounterIncrement),
                     widget::button("Dec").on_press(Message::CounterDecreasement),
                     widget::button("Go to Launch Page").on_press(Message::ViewPageManager(
@@ -69,9 +73,7 @@ impl ViewPage for CounterPage {
                 }
                 _ => {}
             },
-            // Message::PageJump(next_page) => {
-            //     self.handle_page_jump(next_page);
-            // }
+
             Message::CounterIncrement => {
                 self.val += 10.0;
             }

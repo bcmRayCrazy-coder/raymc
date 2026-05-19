@@ -6,8 +6,12 @@ use iced::{
 };
 
 use crate::{
-    app::{app::App, message::Message, page::page::ViewPage},
-    embed,
+    app::{
+        app::{App, ViewPageName},
+        message::Message,
+        page::page::ViewPage,
+    },
+    cache, embed,
 };
 
 // TODO: Intergrate to ViewPage
@@ -21,12 +25,12 @@ impl LaunchPage {
 }
 
 impl ViewPage for LaunchPage {
-    fn initialize(&mut self) {}
+    fn on_page_show(&mut self) {}
 
     fn view(&self) -> Element<'_, Message> {
         let background = widget::image(
             // "assets/bg.png"
-            embed::get_image_handle("bg.png").unwrap(),
+            cache::get_cached_image_handle("bg.png").unwrap(),
         )
         .width(Fill)
         .height(Fill)
@@ -35,9 +39,17 @@ impl ViewPage for LaunchPage {
         widget::stack![
             background,
             widget::container(widget::row![
-                widget::image(embed::get_image_handle("icon.png").unwrap()).height(60),
-                widget::column![text("欢迎").size(30), text("Ray Music Center").size(20)]
-                    .padding([0.0, 10.0])
+                widget::image(cache::get_cached_image_handle("icon.png").unwrap()).height(60),
+                widget::column![
+                    text("欢迎").size(30),
+                    text("Ray Music Center").size(20),
+                    widget::button("To Counter").on_press(Message::ViewPageManager(
+                        crate::app::message::ViewPageManagerMessage::PageJump(
+                            ViewPageName::Counter
+                        )
+                    ))
+                ]
+                .padding([0.0, 10.0])
             ])
             .center(Fill)
         ]

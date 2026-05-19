@@ -2,10 +2,13 @@ use std::collections::HashMap;
 
 use iced::{Element, Length::Fill, Task, widget};
 
-use crate::app::{app::ViewPageName, message::Message};
+use crate::app::{
+    app::ViewPageName,
+    message::{Message, ViewPageManagerMessage},
+};
 
 pub trait ViewPage {
-    fn initialize(&mut self);
+    fn on_page_show(&mut self) {}
     fn view(&self) -> Element<'_, Message>;
     fn update(&mut self, message: Message) -> Task<Message>;
     fn name(&self) -> ViewPageName;
@@ -20,7 +23,7 @@ impl ViewPageManager {
     pub fn new() -> Self {
         Self {
             pages: HashMap::new(),
-            current_page: ViewPageName::Launch,
+            current_page: ViewPageName::Counter,
         }
     }
 
@@ -29,6 +32,9 @@ impl ViewPageManager {
     }
 
     pub fn update(&mut self, message: Message) -> Task<Message> {
+        if let Message::ViewPageManager(manager_message) = message {
+            return self.manager_update(manager_message);
+        }
         let page = self.pages.get_mut(&self.current_page);
         match page {
             Some(page) => page.update(message),
@@ -51,5 +57,16 @@ impl ViewPageManager {
         ])
         .center(Fill)
         .into()
+    }
+
+    fn manager_update(&mut self, message: ViewPageManagerMessage) -> Task<Message> {
+        match message {
+            ViewPageManagerMessage::PageJump(view_page_name) => {
+                println!("Switch page");
+                self.current_page = view_page_name;
+            }
+            ViewPageManagerMessage::PageBack => todo!(),
+        }
+        Task::none()
     }
 }

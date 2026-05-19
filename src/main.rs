@@ -1,5 +1,7 @@
 mod app;
+mod cache;
 mod embed;
+
 use app::app::App;
 use iced::{
     Font, Theme, application,
@@ -13,6 +15,8 @@ fn load_app_icon(path: &str) -> Option<Icon> {
 
 fn main() -> iced::Result {
     println!("Start Application Ray Music Center");
+
+    cache::load_cached_asset();
 
     let app_settings = Settings {
         // fullscreen: true,

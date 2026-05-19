@@ -21,22 +21,18 @@ pub enum QuickKey {
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub enum ViewPageName {
     Launch,
+
     // For Test Purpose
     Counter,
 }
 
 pub struct App {
-    pub val: f32,
-    pub view_page: ViewPageName,
-
     pub view_page_manager: ViewPageManager,
 }
 
 impl App {
     pub fn new() -> Self {
         App {
-            val: 10.0,
-            view_page: ViewPageName::Launch,
             view_page_manager: ViewPageManager::new(),
         }
     }
