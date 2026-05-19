@@ -56,7 +56,12 @@ impl App {
 
     pub fn subscription(&self) -> Subscription<Message> {
         event::listen_with(|event, _status, _window| {
-            if let Event::Keyboard(keyboard::Event::KeyReleased { key, modifiers: _modifiers, .. }) = event {
+            if let Event::Keyboard(keyboard::Event::KeyReleased {
+                key,
+                modifiers: _modifiers,
+                ..
+            }) = event
+            {
                 match key {
                     key::Key::Character(c) if c == "1" => {
                         return Some(Message::QuickKeyAction(QuickKey::KEY0));

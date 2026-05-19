@@ -7,7 +7,7 @@ use iced::{
 
 use crate::{
     app::{app::ViewPageName, message::Message, page::page::ViewPage},
-    cache,
+    cache::{self, get_cached_image_handle_list},
 };
 
 pub struct LaunchPage {}
@@ -15,6 +15,18 @@ pub struct LaunchPage {}
 impl LaunchPage {
     pub fn new() -> Self {
         Self {}
+    }
+
+    fn widget_preload<'a, Message, Theme>(
+        &self,
+    ) -> widget::Stack<'a, Message, Theme, iced::Renderer> {
+        let mut widget_preload = widget::Stack::new().height(1);
+
+        for img in get_cached_image_handle_list() {
+            widget_preload = widget_preload.push(widget::image(img));
+        }
+
+        widget_preload
     }
 }
 
@@ -29,6 +41,7 @@ impl ViewPage for LaunchPage {
         .content_fit(iced::ContentFit::Cover);
 
         widget::stack![
+            self.widget_preload(),
             background,
             widget::container(widget::row![
                 widget::image(cache::get_cached_image_handle("icon.png").unwrap()).height(60),
@@ -45,6 +58,8 @@ impl ViewPage for LaunchPage {
             ])
             .center(Fill)
         ]
+        .height(Fill)
+        .width(Fill)
         .into()
     }
 

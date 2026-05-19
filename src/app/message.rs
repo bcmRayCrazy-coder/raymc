@@ -7,7 +7,7 @@ pub enum Message {
 
     PageShow,
 
-    Counter(CounterMessage)
+    Counter(CounterMessage),
 }
 
 #[derive(Debug, Clone)]
@@ -16,9 +16,9 @@ pub enum ViewPageManagerMessage {
     PageBack,
 }
 
-#[derive(Debug,Clone)]
+#[derive(Debug, Clone)]
 pub enum CounterMessage {
     HideMsg,
     Increment,
-    Decreasement
+    Decreasement,
 }
