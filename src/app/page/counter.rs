@@ -7,7 +7,7 @@ use crate::{
         message::{CounterMessage, Message, ViewPageManagerMessage},
         page::page::ViewPage,
     },
-    cache::{self, get_cached_image_handle_list},
+    cache::{self},
 };
 
 // TODO: Intergrate to ViewPage
@@ -72,14 +72,13 @@ impl ViewPage for CounterPage {
             animated_text
         ];
 
-        let mut widget_preload = widget::Stack::new().height(1);
-
-        for img in get_cached_image_handle_list() {
-            widget_preload = widget_preload.push(widget::image(img));
-        }
-
         widget::container(
-            widget::column![widget_page, widget_animation, widget_preload].spacing(10),
+            widget::column![
+                widget_page,
+                widget_animation,
+                // widget_preload
+            ]
+            .spacing(10),
         )
         .padding(10)
         .into()

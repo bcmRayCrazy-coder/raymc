@@ -69,6 +69,18 @@ impl App {
                     key::Key::Character(c) if c == "2" => {
                         return Some(Message::QuickKeyAction(QuickKey::KEY1));
                     }
+                    key::Key::Character(c) if c == "3" => {
+                        return Some(Message::QuickKeyAction(QuickKey::KEY2));
+                    }
+                    key::Key::Character(c) if c == "4" => {
+                        return Some(Message::QuickKeyAction(QuickKey::KEYL));
+                    }
+                    key::Key::Character(c) if c == "5" => {
+                        return Some(Message::QuickKeyAction(QuickKey::KEYM));
+                    }
+                    key::Key::Character(c) if c == "6" => {
+                        return Some(Message::QuickKeyAction(QuickKey::KEYR));
+                    }
                     _ => {}
                 }
             }

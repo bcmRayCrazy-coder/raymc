@@ -1,13 +1,6 @@
-use std::{
-    collections::{
-        HashMap,
-        hash_map::{Keys, Values},
-    },
-    iter::Cloned,
-    sync::RwLock,
-};
+use std::{collections::HashMap, sync::RwLock};
 
-use iced::{task::Handle, widget::image};
+use iced::widget::image;
 use once_cell::sync::Lazy;
 
 use crate::embed::get_image_handle;
@@ -50,6 +43,7 @@ pub fn load_cached_asset() {
 pub fn get_cached_image_handle(path: &str) -> Option<image::Handle> {
     let cached_asset = CACHED_ASSET.read().ok()?;
     let image_handle = cached_asset.image_handle.get(&path.to_string());
+    println!("Handle created for {path}");
     image_handle.cloned()
 }
 
