@@ -2,19 +2,13 @@ use iced::{
     Element,
     Length::Fill,
     Task,
-    widget::{self, Container, text},
+    widget::{self, text},
 };
 
 use crate::{
-    app::{
-        app::{App, ViewPageName},
-        message::Message,
-        page::page::ViewPage,
-    },
-    cache, embed,
+    app::{app::ViewPageName, message::Message, page::page::ViewPage},
+    cache,
 };
-
-// TODO: Intergrate to ViewPage
 
 pub struct LaunchPage {}
 
@@ -25,8 +19,6 @@ impl LaunchPage {
 }
 
 impl ViewPage for LaunchPage {
-    fn on_page_show(&mut self) {}
-
     fn view(&self) -> Element<'_, Message> {
         let background = widget::image(
             // "assets/bg.png"
@@ -56,7 +48,7 @@ impl ViewPage for LaunchPage {
         .into()
     }
 
-    fn update(&mut self, message: Message) -> Task<Message> {
+    fn update(&mut self, _message: Message) -> Task<Message> {
         Task::none()
     }
 

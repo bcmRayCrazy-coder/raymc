@@ -8,7 +8,6 @@ use crate::app::{
 };
 
 pub trait ViewPage {
-    fn on_page_show(&mut self) {}
     fn view(&self) -> Element<'_, Message>;
     fn update(&mut self, message: Message) -> Task<Message>;
     fn name(&self) -> ViewPageName;
@@ -17,6 +16,7 @@ pub trait ViewPage {
 pub struct ViewPageManager {
     pages: HashMap<ViewPageName, Box<dyn ViewPage>>,
     current_page: ViewPageName,
+    history_page: Vec<ViewPageName>,
 }
 
 impl ViewPageManager {
@@ -24,6 +24,7 @@ impl ViewPageManager {
         Self {
             pages: HashMap::new(),
             current_page: ViewPageName::Counter,
+            history_page: Vec::new(),
         }
     }
 
@@ -62,11 +63,17 @@ impl ViewPageManager {
     fn manager_update(&mut self, message: ViewPageManagerMessage) -> Task<Message> {
         match message {
             ViewPageManagerMessage::PageJump(view_page_name) => {
-                println!("Switch page");
+                self.history_page.push(self.current_page.clone());
                 self.current_page = view_page_name;
+                Task::done(Message::PageShow)
             }
-            ViewPageManagerMessage::PageBack => todo!(),
+            ViewPageManagerMessage::PageBack => {
+                if let Some(last_page) = self.history_page.last() {
+                    self.current_page = last_page.clone();
+                    return Task::done(Message::PageShow);
+                }
+                Task::none()
+            }
         }
-        Task::none()
     }
 }
