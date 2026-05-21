@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 
-use iced::{Element, Length::Fill, Task, widget};
+use iced::{Element, Length::Fill, Size, Task, widget};
 
 use crate::app::{app::ViewPageName, message::Message};
 
@@ -14,6 +14,7 @@ pub struct ViewPageManager {
     pages: HashMap<ViewPageName, Box<dyn ViewPage>>,
     current_page: ViewPageName,
     history_page: Vec<ViewPageName>,
+    page_size: Size,
 }
 
 impl ViewPageManager {
@@ -22,6 +23,7 @@ impl ViewPageManager {
             pages: HashMap::new(),
             current_page: ViewPageName::Launch,
             history_page: Vec::new(),
+            page_size: Size::new(800.0, 600.0),
         }
     }
 
@@ -30,15 +32,18 @@ impl ViewPageManager {
     }
 
     pub fn update(&mut self, message: Message) -> Task<Message> {
-        let (prevent, task) = self.manager_update(&message);
+        let (prevent, manager_task) = self.manager_update(&message);
         if prevent {
-            return task;
+            return manager_task;
         }
         let page = self.pages.get_mut(&self.current_page);
-        match page {
+        let page_task = match page {
             Some(page) => page.update(message),
             None => Task::none(),
-        }
+        };
+
+        Task::batch([manager_task, page_task])
+        // manager_task.chain(page_task)
     }
 
     pub fn view(&self) -> Element<'_, Message> {
@@ -58,6 +63,9 @@ impl ViewPageManager {
         .into()
     }
 
+    /**
+     * Return bool: True to Prevent message passing down to page
+     */
     fn manager_update(&mut self, message: &Message) -> (bool, Task<Message>) {
         match message {
             Message::ActionPageJump(view_page_name) => {
@@ -71,6 +79,13 @@ impl ViewPageManager {
                     return (true, Task::done(Message::OnPageShow));
                 }
                 (true, Task::none())
+            }
+            Message::OnPageShow => {
+                return (false, Task::done(Message::OnWindowResize(self.page_size)));
+            }
+            Message::OnWindowResize(page_size) => {
+                self.page_size = page_size.clone();
+                return (false, Task::none());
             }
             _ => (false, Task::none()),
         }

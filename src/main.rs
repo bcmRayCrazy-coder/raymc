@@ -30,6 +30,7 @@ fn main() -> iced::Result {
         .antialiasing(true)
         .default_font(Font::from(Font::with_name("微软雅黑")))
         .title("Ray Music Center")
+        .window_size((800, 600))
         .window(app_settings)
         .run()
 }

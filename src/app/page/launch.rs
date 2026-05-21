@@ -19,16 +19,14 @@ impl LaunchPage {
         Self {}
     }
 
-    fn widget_preload<'a, Message, Theme>(
-        &self,
-    ) -> widget::Stack<'a, Message, Theme, iced::Renderer> {
+    fn widget_preload(&self) -> Element<'_, Message> {
         let mut widget_preload = widget::Stack::new().height(1);
 
         for img in get_cached_image_handle_list() {
             widget_preload = widget_preload.push(widget::image(img));
         }
 
-        widget_preload
+        widget_preload.into()
     }
 }
 

@@ -45,14 +45,10 @@ impl ViewPage for CounterPage {
         let mut widget_page = widget::Row::new()
             .spacing(10)
             .push(
-                widget::button("Go to Launch Page").on_press(
-                    Message::ActionPageJump(ViewPageName::Launch),
-                ),
+                widget::button("Go to Launch Page")
+                    .on_press(Message::ActionPageJump(ViewPageName::Launch)),
             )
-            .push(
-                widget::button("Go Back")
-                    .on_press(Message::ActionPageBack),
-            );
+            .push(widget::button("Go Back").on_press(Message::ActionPageBack));
 
         if self.page_show_msg {
             widget_page = widget_page.push(

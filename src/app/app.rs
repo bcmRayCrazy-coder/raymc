@@ -59,11 +59,18 @@ impl App {
 
     pub fn subscription(&self) -> Subscription<Message> {
         event::listen_with(|event, _status, _window| {
+            if let Event::Window(window_event) = &event {
+                match window_event {
+                    window::Event::Resized(size) => return Some(Message::OnWindowResize(*size)),
+                    _ => {}
+                }
+            }
+
             if let Event::Keyboard(keyboard::Event::KeyReleased {
                 key,
                 modifiers: _modifiers,
                 ..
-            }) = event
+            }) = &event
             {
                 match key {
                     key::Key::Character(c) if c == "1" => {

@@ -43,7 +43,6 @@ pub fn load_cached_asset() {
 pub fn get_cached_image_handle(path: &str) -> Option<image::Handle> {
     let cached_asset = CACHED_ASSET.read().ok()?;
     let image_handle = cached_asset.image_handle.get(&path.to_string());
-    println!("Handle created for {path}");
     image_handle.cloned()
 }
 
