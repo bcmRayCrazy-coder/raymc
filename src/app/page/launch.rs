@@ -1,3 +1,5 @@
+use std::time::Duration;
+
 use iced::{
     Element,
     Length::Fill,
@@ -6,7 +8,11 @@ use iced::{
 };
 
 use crate::{
-    app::{app::ViewPageName, message::Message, page::page::ViewPage},
+    app::{
+        app::ViewPageName,
+        message::{Message},
+        page::page::ViewPage,
+    },
     cache::{self, get_cached_image_handle_list},
 };
 
@@ -48,11 +54,7 @@ impl ViewPage for LaunchPage {
                 widget::column![
                     text("欢迎").size(30),
                     text("Ray Music Center").size(20),
-                    widget::button("To Counter").on_press(Message::ViewPageManager(
-                        crate::app::message::ViewPageManagerMessage::PageJump(
-                            ViewPageName::Counter
-                        )
-                    ))
+                    widget::button("To Counter").on_press(Message::ActionPageJump(ViewPageName::Counter))
                 ]
                 .padding([0.0, 10.0])
             ])
@@ -63,8 +65,17 @@ impl ViewPage for LaunchPage {
         .into()
     }
 
-    fn update(&mut self, _message: Message) -> Task<Message> {
-        Task::none()
+    fn update(&mut self, message: Message) -> Task<Message> {
+        match message {
+            Message::OnPageShow => {
+                println!("Page show");
+                // Task::none()
+                Task::perform(tokio::time::sleep(Duration::from_secs(1)), |_| {
+                    Message::ActionPageJump(ViewPageName::Menu)
+                })
+            }
+            _ => Task::none(),
+        }
     }
 
     fn name(&self) -> crate::app::app::ViewPageName {

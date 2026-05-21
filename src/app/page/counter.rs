@@ -4,7 +4,7 @@ use iced_anim::{AnimationBuilder, Easing};
 use crate::{
     app::{
         app::{QuickKey, ViewPageName},
-        message::{CounterMessage, Message, ViewPageManagerMessage},
+        message::{CounterMessage, Message},
         page::page::ViewPage,
     },
     cache::{self},
@@ -45,13 +45,13 @@ impl ViewPage for CounterPage {
         let mut widget_page = widget::Row::new()
             .spacing(10)
             .push(
-                widget::button("Go to Launch Page").on_press(Message::ViewPageManager(
-                    ViewPageManagerMessage::PageJump(ViewPageName::Launch),
-                )),
+                widget::button("Go to Launch Page").on_press(
+                    Message::ActionPageJump(ViewPageName::Launch),
+                ),
             )
             .push(
                 widget::button("Go Back")
-                    .on_press(Message::ViewPageManager(ViewPageManagerMessage::PageBack)),
+                    .on_press(Message::ActionPageBack),
             );
 
         if self.page_show_msg {
@@ -98,7 +98,7 @@ impl ViewPage for CounterPage {
                 _ => {}
             },
 
-            Message::PageShow => {
+            Message::OnPageShow => {
                 self.page_show_msg = true;
             }
 

@@ -3,17 +3,12 @@ use crate::app::app::{QuickKey, ViewPageName};
 #[derive(Debug, Clone)]
 pub enum Message {
     QuickKeyAction(QuickKey),
-    ViewPageManager(ViewPageManagerMessage),
 
-    PageShow,
+    OnPageShow,
+    ActionPageJump(ViewPageName),
+    ActionPageBack,
 
     Counter(CounterMessage),
-}
-
-#[derive(Debug, Clone)]
-pub enum ViewPageManagerMessage {
-    PageJump(ViewPageName),
-    PageBack,
 }
 
 #[derive(Debug, Clone)]

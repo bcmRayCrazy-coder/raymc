@@ -1,6 +1,7 @@
 use iced::{
     Element, Event, Subscription, Task, event,
     keyboard::{self, key},
+    window,
 };
 
 use crate::app::{
@@ -21,6 +22,7 @@ pub enum QuickKey {
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub enum ViewPageName {
     Launch,
+    Menu,
 
     // For Test Purpose
     Counter,
@@ -43,7 +45,7 @@ impl App {
         app.view_page_manager.register(CounterPage::new());
         app.view_page_manager.register(LaunchPage::new());
 
-        (app, Task::none())
+        (app, Task::done(Message::OnPageShow))
     }
 
     pub fn update(&mut self, message: Message) -> Task<Message> {

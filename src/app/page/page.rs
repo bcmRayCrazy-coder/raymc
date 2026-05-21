@@ -2,10 +2,7 @@ use std::collections::HashMap;
 
 use iced::{Element, Length::Fill, Task, widget};
 
-use crate::app::{
-    app::ViewPageName,
-    message::{Message, ViewPageManagerMessage},
-};
+use crate::app::{app::ViewPageName, message::Message};
 
 pub trait ViewPage {
     fn view(&self) -> Element<'_, Message>;
@@ -23,7 +20,7 @@ impl ViewPageManager {
     pub fn new() -> Self {
         Self {
             pages: HashMap::new(),
-            current_page: ViewPageName::Counter,
+            current_page: ViewPageName::Launch,
             history_page: Vec::new(),
         }
     }
@@ -33,8 +30,9 @@ impl ViewPageManager {
     }
 
     pub fn update(&mut self, message: Message) -> Task<Message> {
-        if let Message::ViewPageManager(manager_message) = message {
-            return self.manager_update(manager_message);
+        let (prevent, task) = self.manager_update(&message);
+        if prevent {
+            return task;
         }
         let page = self.pages.get_mut(&self.current_page);
         match page {
@@ -60,20 +58,21 @@ impl ViewPageManager {
         .into()
     }
 
-    fn manager_update(&mut self, message: ViewPageManagerMessage) -> Task<Message> {
+    fn manager_update(&mut self, message: &Message) -> (bool, Task<Message>) {
         match message {
-            ViewPageManagerMessage::PageJump(view_page_name) => {
+            Message::ActionPageJump(view_page_name) => {
                 self.history_page.push(self.current_page.clone());
-                self.current_page = view_page_name;
-                Task::done(Message::PageShow)
+                self.current_page = view_page_name.clone();
+                (true, Task::done(Message::OnPageShow))
             }
-            ViewPageManagerMessage::PageBack => {
+            Message::ActionPageBack => {
                 if let Some(last_page) = self.history_page.last() {
                     self.current_page = last_page.clone();
-                    return Task::done(Message::PageShow);
+                    return (true, Task::done(Message::OnPageShow));
                 }
-                Task::none()
+                (true, Task::none())
             }
+            _ => (false, Task::none()),
         }
     }
 }
