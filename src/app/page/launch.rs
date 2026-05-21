@@ -8,11 +8,7 @@ use iced::{
 };
 
 use crate::{
-    app::{
-        app::ViewPageName,
-        message::{Message},
-        page::page::ViewPage,
-    },
+    app::{app::ViewPageName, message::Message, page::page::ViewPage},
     cache::{self, get_cached_image_handle_list},
 };
 
@@ -54,7 +50,8 @@ impl ViewPage for LaunchPage {
                 widget::column![
                     text("欢迎").size(30),
                     text("Ray Music Center").size(20),
-                    widget::button("To Counter").on_press(Message::ActionPageJump(ViewPageName::Counter))
+                    widget::button("To Counter")
+                        .on_press(Message::ActionPageJump(ViewPageName::Counter))
                 ]
                 .padding([0.0, 10.0])
             ])
@@ -70,7 +67,7 @@ impl ViewPage for LaunchPage {
             Message::OnPageShow => {
                 println!("Page show");
                 // Task::none()
-                Task::perform(tokio::time::sleep(Duration::from_secs(1)), |_| {
+                Task::perform(tokio::time::sleep(Duration::from_millis(10)), |_| {
                     Message::ActionPageJump(ViewPageName::Menu)
                 })
             }

@@ -6,7 +6,7 @@ use iced::{
 
 use crate::app::{
     message::Message,
-    page::{counter::CounterPage, launch::LaunchPage, page::ViewPageManager},
+    page::{counter::CounterPage, launch::LaunchPage, menu::MenuPage, page::ViewPageManager},
 };
 
 #[derive(Debug, Clone)]
@@ -44,6 +44,7 @@ impl App {
 
         app.view_page_manager.register(CounterPage::new());
         app.view_page_manager.register(LaunchPage::new());
+        app.view_page_manager.register(MenuPage::new());
 
         (app, Task::done(Message::OnPageShow))
     }
