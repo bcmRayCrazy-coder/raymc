@@ -85,10 +85,16 @@ impl MenuPage {
         let size = (self.page_height * 0.4).min(240.0) * self.anim_icon_scale.value();
 
         widget::stack![
-            // TODO: Icon background image
-            widget::image(cache::get_cached_image_handle(&icon_path).unwrap())
-                .height(size)
-                .width(size),
+            widget::image(cache::get_cached_image_handle("menu_icon_bg.png").unwrap())
+                .height(size * 1.3)
+                .width(size * 1.3)
+                .opacity(0.6),
+            widget::container(
+                widget::image(cache::get_cached_image_handle(&icon_path).unwrap())
+                    .height(size)
+                    .width(size)
+            )
+            .center(size * 1.3),
         ]
         .into()
     }

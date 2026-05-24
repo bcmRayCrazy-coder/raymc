@@ -41,6 +41,7 @@ pub fn load_cached_asset() {
     load_cache_image(&mut cached_asset, "icons/quit.png");
     load_cache_image(&mut cached_asset, "icon.png");
     load_cache_image(&mut cached_asset, "bg.png");
+    load_cache_image(&mut cached_asset, "menu_icon_bg.png");
     load_cache_image(&mut cached_asset, "user.png");
 }
 
