@@ -6,7 +6,10 @@ use iced::{
 
 use crate::app::{
     message::Message,
-    page::{counter::CounterPage, launch::LaunchPage, menu::MenuPage, page::ViewPageManager},
+    page::{
+        counter::CounterPage, launch::LaunchPage, menu::MenuPage, options::OptionsPage,
+        page::ViewPageManager,
+    },
 };
 
 #[derive(Debug, Clone)]
@@ -23,6 +26,7 @@ pub enum QuickKey {
 pub enum ViewPageName {
     Launch,
     Menu,
+    Options,
 
     // For Test Purpose
     Counter,
@@ -45,6 +49,7 @@ impl App {
         app.view_page_manager.register(CounterPage::new());
         app.view_page_manager.register(LaunchPage::new());
         app.view_page_manager.register(MenuPage::new());
+        app.view_page_manager.register(OptionsPage::new());
 
         (app, Task::done(Message::OnPageShow))
     }

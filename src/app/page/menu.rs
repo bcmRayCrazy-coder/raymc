@@ -140,6 +140,7 @@ impl ViewPage for MenuPage {
     ) -> iced::Task<crate::app::message::Message> {
         match message {
             Message::Menu(MenuMessage::ConfirmSelect) => match self.current_item {
+                2 => Task::done(Message::ActionPageJump(ViewPageName::Options)),
                 3 => Task::done(Message::ActionQuit),
                 _ => Task::none(),
             },

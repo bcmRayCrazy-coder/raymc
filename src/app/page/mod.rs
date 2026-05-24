@@ -1,4 +1,5 @@
 pub mod counter;
 pub mod launch;
 pub mod menu;
+pub mod options;
 pub mod page;
