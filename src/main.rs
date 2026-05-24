@@ -4,7 +4,7 @@ mod embed;
 
 use app::app::App;
 use iced::{
-    Font, Theme, application,
+    Font, Program, Theme, application,
     window::{Icon, Settings, icon},
 };
 
@@ -24,13 +24,13 @@ fn main() -> iced::Result {
         ..Default::default()
     };
 
-    application(App::boot, App::update, App::view)
+    let app = application(App::boot, App::update, App::view)
         .theme(|_app: &App| Theme::Dark)
         .subscription(App::subscription)
         .antialiasing(true)
         .default_font(Font::from(Font::with_name("微软雅黑")))
         .title("Ray Music Center")
         .window_size((800, 600))
-        .window(app_settings)
-        .run()
+        .window(app_settings);
+    app.run()
 }

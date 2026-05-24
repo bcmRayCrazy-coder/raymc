@@ -58,9 +58,13 @@ impl App {
     }
 
     pub fn subscription(&self) -> Subscription<Message> {
-        event::listen_with(|event, _status, _window| {
+        event::listen_with(|event, _status, window_id| {
             if let Event::Window(window_event) = &event {
                 match window_event {
+                    window::Event::Opened {
+                        position: _,
+                        size: _,
+                    } => return Some(Message::OnWindowOpen(window_id)),
                     window::Event::Resized(size) => return Some(Message::OnWindowResize(*size)),
                     _ => {}
                 }

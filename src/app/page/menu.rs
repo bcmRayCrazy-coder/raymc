@@ -139,6 +139,11 @@ impl ViewPage for MenuPage {
         message: crate::app::message::Message,
     ) -> iced::Task<crate::app::message::Message> {
         match message {
+            Message::Menu(MenuMessage::ConfirmSelect) => match self.current_item {
+                3 => Task::done(Message::ActionQuit),
+                _ => Task::none(),
+            },
+
             Message::Menu(MenuMessage::UpdatePaddingY(event)) => {
                 self.anim_padding_y.update(event);
                 Task::none()
@@ -161,12 +166,14 @@ impl ViewPage for MenuPage {
             Message::OnWindowResize(size) => {
                 self.page_width = size.width;
                 self.page_height = size.height;
-                // println!("Page size {}", self.page_height);
                 self.update_list_scroll();
                 Task::none()
             }
 
             Message::QuickKeyAction(key) => match key {
+                QuickKey::KEY2 | QuickKey::KEYM => {
+                    Task::done(Message::Menu(MenuMessage::ConfirmSelect))
+                }
                 QuickKey::KEYL => {
                     if self.current_item >= 1 {
                         self.current_item -= 1;

@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 
-use iced::{Element, Length::Fill, Size, Task, widget};
+use iced::{Element, Length::Fill, Size, Task, widget, window};
 
 use crate::app::{app::ViewPageName, message::Message};
 
@@ -15,6 +15,9 @@ pub struct ViewPageManager {
     current_page: ViewPageName,
     history_page: Vec<ViewPageName>,
     page_size: Size,
+
+    window_id: Option<window::Id>,
+    window_closed: bool,
 }
 
 impl ViewPageManager {
@@ -24,6 +27,9 @@ impl ViewPageManager {
             current_page: ViewPageName::Launch,
             history_page: Vec::new(),
             page_size: Size::new(800.0, 600.0),
+
+            window_id: None,
+            window_closed: false,
         }
     }
 
@@ -80,8 +86,27 @@ impl ViewPageManager {
                 }
                 (true, Task::none())
             }
+            Message::ActionQuit => {
+                self.window_closed = true;
+
+                let mut task = Task::none();
+                self.window_id.inspect(|id| task = window::close(*id));
+
+                (true, task)
+            }
+
             Message::OnPageShow => {
                 return (false, Task::done(Message::OnWindowResize(self.page_size)));
+            }
+
+            Message::OnWindowOpen(window_id) => {
+                self.window_id = Some(*window_id);
+
+                if self.window_closed {
+                    return (true, window::close(*window_id));
+                }
+
+                (false, Task::none())
             }
             Message::OnWindowResize(page_size) => {
                 self.page_size = page_size.clone();

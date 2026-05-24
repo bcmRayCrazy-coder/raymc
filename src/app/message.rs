@@ -1,4 +1,4 @@
-use iced::Size;
+use iced::{Size, window};
 use iced_anim::Event;
 
 use crate::app::app::{QuickKey, ViewPageName};
@@ -12,8 +12,10 @@ pub enum Message {
 
     ActionPageJump(ViewPageName),
     ActionPageBack,
+    ActionQuit,
 
     // Window
+    OnWindowOpen(window::Id),
     OnWindowResize(Size),
 
     Counter(CounterMessage),
@@ -25,6 +27,7 @@ pub enum Message {
 pub enum MenuMessage {
     UpdateIconScale(Event<f32>),
     UpdatePaddingY(Event<f32>),
+    ConfirmSelect,
 }
 
 #[derive(Debug, Clone)]
