@@ -23,6 +23,7 @@ pub enum Message {
 #[derive(Debug, Clone)]
 
 pub enum MenuMessage {
+    UpdateIconScale(Event<f32>),
     UpdatePaddingY(Event<f32>),
 }
 

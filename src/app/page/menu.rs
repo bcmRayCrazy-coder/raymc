@@ -17,9 +17,14 @@ use crate::{
 
 pub struct MenuPage {
     list: Vec<String>,
+    list_icon: Vec<String>,
     current_item: usize,
+    current_icon: usize,
+
+    page_width: f32,
     page_height: f32,
 
+    anim_icon_scale: Animated<f32>,
     anim_padding_y: Animated<f32>,
 }
 
@@ -32,9 +37,19 @@ impl MenuPage {
                 "Options".to_owned(),
                 "Quit".to_owned(),
             ],
+            list_icon: vec![
+                "icon.png".to_owned(),
+                "user.png".to_owned(),
+                "icon.png".to_owned(),
+                "user.png".to_owned(),
+            ],
             current_item: 0,
+            current_icon: 0,
+
+            page_width: 0.0,
             page_height: 0.0,
 
+            anim_icon_scale: Animated::transition(1.0, Easing::EASE_OUT.very_quick()),
             anim_padding_y: Animated::transition(0.0, Easing::EASE_IN_OUT.quick()),
         }
     }
@@ -63,12 +78,28 @@ impl MenuPage {
         widget_list.into()
     }
 
+    fn widget_icon(&self) -> Element<'_, Message> {
+        let icon_path = self.list_icon[self.current_icon].clone();
+
+        // icon size <= 240 x 240
+        let size = (self.page_height * 0.4).min(240.0) * self.anim_icon_scale.value();
+
+        widget::stack![
+            // TODO: Icon background image
+            widget::image(cache::get_cached_image_handle(&icon_path).unwrap())
+                .height(size)
+                .width(size),
+        ]
+        .into()
+    }
+
     fn update_list_scroll(&mut self) {
-        let list_selected_y = 40.0 * self.current_item as f32;
-        let list_offset_y = self.page_height / 2.0 + 50.0;
+        let list_selected_y = 50.0 * self.current_item as f32;
+        let list_offset_y = self.page_height * 0.6;
         self.anim_padding_y.update(iced_anim::Event::Target(
             list_selected_y * -1.0 + list_offset_y,
         ));
+        self.anim_icon_scale.update(iced_anim::Event::Target(0.8));
     }
 }
 
@@ -82,15 +113,25 @@ impl ViewPage for MenuPage {
         let widget_list = animation(
             &self.anim_padding_y,
             widget::container(self.widget_list())
-                .padding(Padding::new(10.0).top(iced::Pixels::from(*self.anim_padding_y.value())))
+                .padding(
+                    Padding::new(self.page_width * 0.08)
+                        .top(iced::Pixels::from(*self.anim_padding_y.value())),
+                )
                 .height(Fill)
                 .clip(true), // .into()
         )
         .on_update(|e| Message::Menu(MenuMessage::UpdatePaddingY(e)));
-        // .animates_layout(true)
-        // .animation(Easing::EASE_IN_OUT.quick());
 
-        widget::stack![background, widget_list].into()
+        let widget_icon = animation(
+            &self.anim_icon_scale,
+            widget::container(self.widget_icon())
+                .align_right(Fill)
+                .padding(self.page_width * 0.1)
+                .center_y(Fill),
+        )
+        .on_update(|e| Message::Menu(MenuMessage::UpdateIconScale(e)));
+
+        widget::stack![background, widget_icon, widget_list].into()
     }
 
     fn update(
@@ -103,14 +144,25 @@ impl ViewPage for MenuPage {
                 Task::none()
             }
 
+            Message::Menu(MenuMessage::UpdateIconScale(event)) => {
+                self.anim_icon_scale.update(event);
+                if *self.anim_icon_scale.value() == 0.8 {
+                    self.anim_icon_scale.update(iced_anim::Event::Target(1.0));
+                    self.current_icon = self.current_item;
+                }
+                Task::none()
+            }
+
             Message::OnPageShow => {
                 self.update_list_scroll();
                 Task::none()
             }
 
             Message::OnWindowResize(size) => {
+                self.page_width = size.width;
                 self.page_height = size.height;
-                println!("Page size {}", self.page_height);
+                // println!("Page size {}", self.page_height);
+                self.update_list_scroll();
                 Task::none()
             }
 
