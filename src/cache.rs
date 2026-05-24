@@ -35,6 +35,10 @@ pub fn load_cached_asset() {
 
     let mut cached_asset = CACHED_ASSET.write().unwrap();
 
+    load_cache_image(&mut cached_asset, "icons/album.png");
+    load_cache_image(&mut cached_asset, "icons/options.png");
+    load_cache_image(&mut cached_asset, "icons/playlist.png");
+    load_cache_image(&mut cached_asset, "icons/quit.png");
     load_cache_image(&mut cached_asset, "icon.png");
     load_cache_image(&mut cached_asset, "bg.png");
     load_cache_image(&mut cached_asset, "user.png");
