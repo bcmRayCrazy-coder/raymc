@@ -1,6 +1,6 @@
 use iced::{Length::Fill, Task, widget};
 
-use crate::app::{
+use crate::ui::{
     app::{QuickKey, ViewPageName},
     message::Message,
     page::page::ViewPage,
@@ -15,7 +15,7 @@ impl OptionsPage {
 }
 
 impl ViewPage for OptionsPage {
-    fn view(&self) -> iced::Element<'_, crate::app::message::Message> {
+    fn view(&self) -> iced::Element<'_, crate::ui::message::Message> {
         widget::container(widget::text("Not Implement Yet...\nPress KEY0 to go back"))
             .center(Fill)
             .into()
@@ -23,15 +23,15 @@ impl ViewPage for OptionsPage {
 
     fn update(
         &mut self,
-        message: crate::app::message::Message,
-    ) -> iced::Task<crate::app::message::Message> {
+        message: crate::ui::message::Message,
+    ) -> iced::Task<crate::ui::message::Message> {
         match message {
             Message::QuickKeyAction(QuickKey::KEY0) => Task::done(Message::ActionPageBack),
             _ => Task::none(),
         }
     }
 
-    fn name(&self) -> crate::app::app::ViewPageName {
+    fn name(&self) -> crate::ui::app::ViewPageName {
         ViewPageName::Options
     }
 }

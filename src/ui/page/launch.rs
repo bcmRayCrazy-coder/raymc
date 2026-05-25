@@ -8,7 +8,7 @@ use iced::{
 };
 
 use crate::{
-    app::{app::ViewPageName, message::Message, page::page::ViewPage},
+    ui::{app::ViewPageName, message::Message, page::page::ViewPage},
     cache::{self, get_cached_image_handle_list},
 };
 
@@ -73,7 +73,7 @@ impl ViewPage for LaunchPage {
         }
     }
 
-    fn name(&self) -> crate::app::app::ViewPageName {
-        crate::app::app::ViewPageName::Launch
+    fn name(&self) -> crate::ui::app::ViewPageName {
+        crate::ui::app::ViewPageName::Launch
     }
 }

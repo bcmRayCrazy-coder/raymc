@@ -1,10 +1,10 @@
-mod app;
+mod ui;
 mod cache;
 mod embed;
 
-use app::app::App;
+use ui::app::App;
 use iced::{
-    Font, Program, Theme, application,
+    Font, Theme, application,
     window::{Icon, Settings, icon},
 };
 

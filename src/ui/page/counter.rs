@@ -2,7 +2,7 @@ use iced::{Element, Task, widget};
 use iced_anim::{AnimationBuilder, Easing};
 
 use crate::{
-    app::{
+    ui::{
         app::{QuickKey, ViewPageName},
         message::{CounterMessage, Message},
         page::page::ViewPage,

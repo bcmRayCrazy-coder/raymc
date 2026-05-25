@@ -1,7 +1,7 @@
 use iced::{Size, window};
 use iced_anim::Event;
 
-use crate::app::app::{QuickKey, ViewPageName};
+use crate::ui::app::{QuickKey, ViewPageName};
 
 #[derive(Debug, Clone)]
 pub enum Message {

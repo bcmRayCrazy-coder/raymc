@@ -2,7 +2,7 @@ use std::collections::HashMap;
 
 use iced::{Element, Length::Fill, Size, Task, widget, window};
 
-use crate::app::{app::ViewPageName, message::Message};
+use crate::ui::{app::ViewPageName, message::Message};
 
 pub trait ViewPage {
     fn view(&self) -> Element<'_, Message>;

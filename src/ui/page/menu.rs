@@ -7,12 +7,12 @@ use iced::{
 use iced_anim::{Animated, AnimationBuilder, Easing, animation::animation};
 
 use crate::{
-    app::{
+    cache,
+    ui::{
         app::{QuickKey, ViewPageName},
         message::{MenuMessage, Message},
         page::page::ViewPage,
     },
-    cache,
 };
 
 pub struct MenuPage {
@@ -82,7 +82,7 @@ impl MenuPage {
         let icon_path = self.list_icon[self.current_icon].clone();
 
         // icon size <= 240 x 240
-        let size = (self.page_height * 0.4).min(240.0) * self.anim_icon_scale.value();
+        let size = (self.page_height * 0.5).min(260.0) * self.anim_icon_scale.value();
 
         widget::stack![
             widget::image(cache::get_cached_image_handle("menu_icon_bg.png").unwrap())
@@ -110,7 +110,7 @@ impl MenuPage {
 }
 
 impl ViewPage for MenuPage {
-    fn view(&self) -> iced::Element<'_, crate::app::message::Message> {
+    fn view(&self) -> iced::Element<'_, crate::ui::message::Message> {
         let background = widget::image(cache::get_cached_image_handle("bg.png").unwrap())
             .width(Fill)
             .height(Fill)
@@ -142,8 +142,8 @@ impl ViewPage for MenuPage {
 
     fn update(
         &mut self,
-        message: crate::app::message::Message,
-    ) -> iced::Task<crate::app::message::Message> {
+        message: crate::ui::message::Message,
+    ) -> iced::Task<crate::ui::message::Message> {
         match message {
             Message::Menu(MenuMessage::ConfirmSelect) => match self.current_item {
                 2 => Task::done(Message::ActionPageJump(ViewPageName::Options)),
@@ -158,10 +158,12 @@ impl ViewPage for MenuPage {
 
             Message::Menu(MenuMessage::UpdateIconScale(event)) => {
                 self.anim_icon_scale.update(event);
-                if *self.anim_icon_scale.value() == 0.8 {
+
+                if !self.anim_icon_scale.is_animating() {
                     self.anim_icon_scale.update(iced_anim::Event::Target(1.0));
                     self.current_icon = self.current_item;
                 }
+
                 Task::none()
             }
 

@@ -4,7 +4,7 @@ use iced::{
     window,
 };
 
-use crate::app::{
+use crate::ui::{
     message::Message,
     page::{
         counter::CounterPage, launch::LaunchPage, menu::MenuPage, options::OptionsPage,
