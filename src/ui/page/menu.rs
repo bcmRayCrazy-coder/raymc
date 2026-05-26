@@ -1,10 +1,10 @@
 use iced::{
-    Color, Element,
+    Element,
     Length::Fill,
     Padding, Task,
     widget::{self},
 };
-use iced_anim::{Animated, AnimationBuilder, Easing, animation::animation};
+use iced_anim::{Animated, Easing, animation::animation};
 
 use crate::{
     cache,
@@ -12,17 +12,20 @@ use crate::{
         app::{QuickKey, ViewPageName},
         message::{MenuMessage, Message},
         page::page::ViewPage,
+        widget::anim_list::AnimList,
     },
 };
 
 pub struct MenuPage {
     list: Vec<String>,
     list_icon: Vec<String>,
-    current_item: usize,
+    // current_item: usize,
     current_icon: usize,
 
     page_width: f32,
     page_height: f32,
+
+    widget_anim_list: AnimList,
 
     anim_icon_scale: Animated<f32>,
     anim_padding_y: Animated<f32>,
@@ -30,7 +33,7 @@ pub struct MenuPage {
 
 impl MenuPage {
     pub fn new() -> Self {
-        Self {
+        let mut s = Self {
             list: vec![
                 "Playlist".to_owned(),
                 "Album".to_owned(),
@@ -43,39 +46,28 @@ impl MenuPage {
                 "icons/options.png".to_owned(),
                 "icons/quit.png".to_owned(),
             ],
-            current_item: 0,
+            // current_item: 0,
             current_icon: 0,
 
             page_width: 0.0,
             page_height: 0.0,
 
+            widget_anim_list: AnimList::new(),
+
             anim_icon_scale: Animated::transition(1.0, Easing::EASE_OUT.very_quick()),
             anim_padding_y: Animated::transition(0.0, Easing::EASE_IN_OUT.quick()),
-        }
+        };
+
+        s.widget_anim_list = s
+            .widget_anim_list
+            .list(s.list.clone())
+            .on_update(|e| Message::Menu(MenuMessage::UpdateAnimList(e)));
+
+        s
     }
 
     fn widget_list(&self) -> Element<'_, Message> {
-        let mut widget_list = widget::Column::new().spacing(10);
-
-        for (index, item) in self.list.iter().enumerate() {
-            let item_size = if index == self.current_item {
-                (50.0, Color::from_rgba(0.9, 0.9, 0.9, 0.98))
-            } else {
-                (30.0, Color::from_rgba(0.85, 0.85, 0.85, 0.68))
-            };
-            let animated_item =
-                AnimationBuilder::new(item_size, |(item_size_val, item_color_val)| {
-                    widget::text(item.clone())
-                        .size(item_size_val)
-                        .color(item_color_val)
-                        .into()
-                })
-                .animates_layout(true)
-                .animation(Easing::EASE_IN_OUT.quick());
-            widget_list = widget_list.push(animated_item);
-        }
-
-        widget_list.into()
+        self.widget_anim_list.widget()
     }
 
     fn widget_icon(&self) -> Element<'_, Message> {
@@ -98,15 +90,6 @@ impl MenuPage {
         ]
         .into()
     }
-
-    fn update_list_scroll(&mut self) {
-        let list_selected_y = 50.0 * self.current_item as f32;
-        let list_offset_y = self.page_height * 0.6;
-        self.anim_padding_y.update(iced_anim::Event::Target(
-            list_selected_y * -1.0 + list_offset_y,
-        ));
-        self.anim_icon_scale.update(iced_anim::Event::Target(0.8));
-    }
 }
 
 impl ViewPage for MenuPage {
@@ -116,17 +99,9 @@ impl ViewPage for MenuPage {
             .height(Fill)
             .content_fit(iced::ContentFit::Cover);
 
-        let widget_list = animation(
-            &self.anim_padding_y,
-            widget::container(self.widget_list())
-                .padding(
-                    Padding::new(self.page_width * 0.08)
-                        .top(iced::Pixels::from(*self.anim_padding_y.value())),
-                )
-                .height(Fill)
-                .clip(true), // .into()
-        )
-        .on_update(|e| Message::Menu(MenuMessage::UpdatePaddingY(e)));
+        let widget_list = widget::container(self.widget_list())
+            .padding(Padding::new(self.page_width * 0.08).top(self.page_height * 0.6))
+            .height(Fill);
 
         let widget_icon = animation(
             &self.anim_icon_scale,
@@ -145,37 +120,34 @@ impl ViewPage for MenuPage {
         message: crate::ui::message::Message,
     ) -> iced::Task<crate::ui::message::Message> {
         match message {
-            Message::Menu(MenuMessage::ConfirmSelect) => match self.current_item {
+            Message::Menu(MenuMessage::ConfirmSelect) => match self.widget_anim_list.current() {
                 2 => Task::done(Message::ActionPageJump(ViewPageName::Options)),
                 3 => Task::done(Message::ActionQuit),
                 _ => Task::none(),
             },
 
-            Message::Menu(MenuMessage::UpdatePaddingY(event)) => {
-                self.anim_padding_y.update(event);
+            Message::Menu(MenuMessage::UpdateAnimList(event)) => {
+                self.widget_anim_list.update(event);
                 Task::none()
             }
-
+            
             Message::Menu(MenuMessage::UpdateIconScale(event)) => {
                 self.anim_icon_scale.update(event);
 
                 if !self.anim_icon_scale.is_animating() {
                     self.anim_icon_scale.update(iced_anim::Event::Target(1.0));
-                    self.current_icon = self.current_item;
+                    self.current_icon = self.widget_anim_list.current();
                 }
 
                 Task::none()
             }
 
-            Message::OnPageShow => {
-                self.update_list_scroll();
-                Task::none()
-            }
+            Message::OnPageShow => Task::none(),
 
             Message::OnWindowResize(size) => {
                 self.page_width = size.width;
                 self.page_height = size.height;
-                self.update_list_scroll();
+                // self.update_list_scroll();
                 Task::none()
             }
 
@@ -184,16 +156,14 @@ impl ViewPage for MenuPage {
                     Task::done(Message::Menu(MenuMessage::ConfirmSelect))
                 }
                 QuickKey::KEYL => {
-                    if self.current_item >= 1 {
-                        self.current_item -= 1;
-                        self.update_list_scroll();
+                    if self.widget_anim_list.scroll_prev() {
+                        self.anim_icon_scale.update(iced_anim::Event::Target(0.8));
                     }
                     Task::none()
                 }
                 QuickKey::KEYR => {
-                    if self.current_item < (self.list.len() - 1) {
-                        self.current_item += 1;
-                        self.update_list_scroll();
+                    if self.widget_anim_list.scroll_next() {
+                        self.anim_icon_scale.update(iced_anim::Event::Target(0.8));
                     }
                     Task::none()
                 }

@@ -1,7 +1,7 @@
 use iced::{Size, window};
 use iced_anim::Event;
 
-use crate::ui::app::{QuickKey, ViewPageName};
+use crate::ui::{app::{QuickKey, ViewPageName}, widget::anim_list::AnimListEvent};
 
 #[derive(Debug, Clone)]
 pub enum Message {
@@ -20,13 +20,15 @@ pub enum Message {
 
     Counter(CounterMessage),
     Menu(MenuMessage),
+
+    None
 }
 
 #[derive(Debug, Clone)]
 
 pub enum MenuMessage {
     UpdateIconScale(Event<f32>),
-    UpdatePaddingY(Event<f32>),
+    UpdateAnimList(AnimListEvent),
     ConfirmSelect,
 }
 
