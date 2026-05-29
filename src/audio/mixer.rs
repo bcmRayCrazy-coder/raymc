@@ -36,8 +36,14 @@ impl AudioMixer {
             .collect()
     }
 
-    pub fn add_track(&mut self, play: AudioTrack) {
-        self.tracks.push(play);
+    pub fn add_track_vec(&mut self, tracks: Vec<AudioTrack>) {
+        for track in tracks {
+            self.add_track(track);
+        }
+    }
+
+    pub fn add_track(&mut self, track: AudioTrack) {
+        self.tracks.push(track);
     }
 
     pub fn remove_track(&mut self, id: usize) -> bool {

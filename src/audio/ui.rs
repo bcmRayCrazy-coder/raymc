@@ -26,14 +26,10 @@ impl App {
             let stream = audio_stream.lock().unwrap();
             let mut mixer = audio_mixer.lock().unwrap();
 
-            // let mut test_sample =
-            //     AudioTrack::from_embed("test/test.wav", AudioTrackType::TEST).unwrap();
-            // // AudioTrack::from_embed("audio/chord.wav", AudioTrackType::TEST).unwrap();
-            // test_sample.set_playing(true);
-            // mixer.add_track(test_sample);
-            mixer.add_track(
+            mixer.add_track_vec(vec![
                 AudioTrack::from_embed("audio/chord.wav", AudioTrackType::UI("chord")).unwrap(),
-            );
+                AudioTrack::from_embed("audio/info.wav", AudioTrackType::UI("info")).unwrap(),
+            ]);
 
             drop(mixer);
 
