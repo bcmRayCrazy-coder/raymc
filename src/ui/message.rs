@@ -10,6 +10,9 @@ use crate::ui::{
 pub enum Message {
     QuickKeyAction(QuickKey),
 
+    // Audio
+    Audio(AudioMessage),
+
     // Page
     OnPageShow,
 
@@ -25,6 +28,11 @@ pub enum Message {
     Menu(MenuMessage),
 
     None,
+}
+
+#[derive(Debug, Clone)]
+pub enum AudioMessage{
+    PlayUi(&'static str)
 }
 
 #[derive(Debug, Clone)]

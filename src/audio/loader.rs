@@ -63,19 +63,19 @@ impl AudioTrack {
 
     pub fn from_disk(
         file_path: &str,
-        play_type: AudioTrackType,
+        track_type: AudioTrackType,
     ) -> Result<AudioTrack, AudioLoaderError> {
         let mut raw_sample = audrey::open(file_path).map_err(|e| AudioLoaderError::ReadError(e))?;
-        Self::from_reader(&mut raw_sample, play_type)
+        Self::from_reader(&mut raw_sample, track_type)
     }
 
     pub fn from_embed(
         file_path: &str,
-        play_type: AudioTrackType,
+        track_type: AudioTrackType,
     ) -> Result<AudioTrack, AudioLoaderError> {
         let file = get_embed_file(file_path).ok_or(AudioLoaderError::FileNotFound)?;
         let mut raw_sample = audrey::read::Reader::new(std::io::Cursor::new(file.data))
             .map_err(|err| AudioLoaderError::ReadError(err))?;
-        Self::from_reader(&mut raw_sample, play_type)
+        Self::from_reader(&mut raw_sample, track_type)
     }
 }

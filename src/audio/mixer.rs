@@ -29,9 +29,9 @@ impl AudioMixer {
         &self.tracks
     }
 
-    pub fn filter_track(&self, track_type: AudioTrackType) -> Vec<&AudioTrack> {
+    pub fn filter_track_mut(&mut self, track_type: AudioTrackType) -> Vec<&mut AudioTrack> {
         self.tracks
-            .iter()
+            .iter_mut()
             .filter(|t| t.track_type().eq(&track_type))
             .collect()
     }

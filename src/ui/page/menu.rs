@@ -10,7 +10,7 @@ use crate::{
     cache,
     ui::{
         app::{QuickKey, ViewPageName},
-        message::{MenuMessage, Message},
+        message::{AudioMessage, MenuMessage, Message},
         page::page::ViewPage,
         widget::anim_list::AnimList,
     },
@@ -158,12 +158,14 @@ impl ViewPage for MenuPage {
                 QuickKey::KEYL => {
                     if self.widget_anim_list.scroll_prev() {
                         self.anim_icon_scale.update(iced_anim::Event::Target(0.8));
+                        return Task::done(Message::Audio(AudioMessage::PlayUi("chord")));
                     }
                     Task::none()
                 }
                 QuickKey::KEYR => {
                     if self.widget_anim_list.scroll_next() {
                         self.anim_icon_scale.update(iced_anim::Event::Target(0.8));
+                        return Task::done(Message::Audio(AudioMessage::PlayUi("chord")));
                     }
                     Task::none()
                 }

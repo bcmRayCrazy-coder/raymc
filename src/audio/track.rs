@@ -26,7 +26,7 @@ impl AudioTrack {
             track_type,
             sample,
             sample_rate,
-            is_playing: true,
+            is_playing: false,
         }
     }
 
@@ -61,5 +61,10 @@ impl AudioTrack {
 
     pub fn set_playing(&mut self, play: bool) {
         self.is_playing = play;
+    }
+
+    pub fn replay(&mut self) {
+        self.current_pos = 0;
+        self.is_playing = true;
     }
 }
