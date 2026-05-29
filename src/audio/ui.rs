@@ -4,7 +4,10 @@ use iced::Task;
 
 use crate::{
     audio::track::{AudioTrack, AudioTrackType},
-    ui::{app::App, message::{AudioMessage, Message}},
+    ui::{
+        app::App,
+        message::{AudioMessage, Message},
+    },
 };
 
 #[derive(Debug, Clone)]
@@ -55,11 +58,13 @@ impl App {
 
     pub fn update_audio(&mut self, message: AudioMessage) -> Task<Message> {
         match message {
-            AudioMessage::PlayUi(name)=>{
-                let _ = self.replay_track(AudioTrackType::UI(name)).inspect_err(|err| eprintln!("Unable to play UI Audio! {:?}", err));
+            AudioMessage::PlayUi(name) => {
+                let _ = self
+                    .replay_track(AudioTrackType::UI(name))
+                    .inspect_err(|err| eprintln!("Unable to play UI Audio! {:?}", err));
                 Task::none()
             }
-            _=>Task::none()
+            _ => Task::none(),
         }
     }
 }
