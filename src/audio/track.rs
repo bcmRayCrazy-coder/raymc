@@ -1,11 +1,13 @@
 #[derive(Debug, Clone, PartialEq)]
-pub enum AudioPlayType {
+pub enum AudioTrackType {
+    UI(&'static str),
+
     TEST,
 }
 
 #[derive(Debug, Clone)]
-pub struct AudioPlay {
-    play_type: AudioPlayType,
+pub struct AudioTrack {
+    track_type: AudioTrackType,
     sample: Vec<[f32; 2]>,
     sample_rate: u32,
     is_playing: bool,
@@ -14,17 +16,17 @@ pub struct AudioPlay {
     pub volume: f32,
 }
 
-impl AudioPlay {
-    pub fn new(play_type: AudioPlayType, sample: Vec<[f32; 2]>, sample_rate: u32) -> Self {
+impl AudioTrack {
+    pub fn new(track_type: AudioTrackType, sample: Vec<[f32; 2]>, sample_rate: u32) -> Self {
         Self {
             stop_pos: sample.len(),
             current_pos: 0,
             volume: 1.0,
 
-            play_type,
+            track_type,
             sample,
             sample_rate,
-            is_playing: false,
+            is_playing: true,
         }
     }
 
@@ -41,8 +43,8 @@ impl AudioPlay {
         return sample;
     }
 
-    pub fn play_type(&self) -> &AudioPlayType {
-        &self.play_type
+    pub fn track_type(&self) -> &AudioTrackType {
+        &self.track_type
     }
 
     pub fn sample_rate(&self) -> u32 {

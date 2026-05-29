@@ -1,8 +1,10 @@
-use crate::audio::play::AudioPlay;
+use iced::widget::sensor::Key;
+
+use crate::audio::track::{AudioTrack, AudioTrackType};
 
 #[derive(Debug)]
 pub struct AudioMixer {
-    tracks: Vec<AudioPlay>,
+    tracks: Vec<AudioTrack>,
 }
 
 impl AudioMixer {
@@ -23,11 +25,18 @@ impl AudioMixer {
         [sample0, sample1]
     }
 
-    pub fn trakcs(&self) -> &Vec<AudioPlay> {
+    pub fn trakcs(&self) -> &Vec<AudioTrack> {
         &self.tracks
     }
 
-    pub fn add_track(&mut self, play: AudioPlay) {
+    pub fn filter_track(&self, track_type: AudioTrackType) -> Vec<&AudioTrack> {
+        self.tracks
+            .iter()
+            .filter(|t| t.track_type().eq(&track_type))
+            .collect()
+    }
+
+    pub fn add_track(&mut self, play: AudioTrack) {
         self.tracks.push(play);
     }
 

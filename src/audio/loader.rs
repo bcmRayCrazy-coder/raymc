@@ -6,7 +6,7 @@ use std::{
 use audrey::{Reader, read::ReadError};
 
 use crate::{
-    audio::play::{AudioPlay, AudioPlayType},
+    audio::track::{AudioTrack, AudioTrackType},
     embed::get_embed_file,
 };
 
@@ -27,11 +27,11 @@ pub fn is_supported_type(path: &Path) -> bool {
         .unwrap_or(false)
 }
 
-impl AudioPlay {
+impl AudioTrack {
     pub fn from_reader<T>(
         raw_sample: &mut Reader<T>,
-        play_type: AudioPlayType,
-    ) -> Result<AudioPlay, AudioLoaderError>
+        play_type: AudioTrackType,
+    ) -> Result<AudioTrack, AudioLoaderError>
     where
         T: Read + Seek,
     {
@@ -54,7 +54,7 @@ impl AudioPlay {
             _ => vec![[0.0, 0.0]],
         };
 
-        Ok(AudioPlay::new(
+        Ok(AudioTrack::new(
             play_type,
             sample.clone(),
             desc.sample_rate(),
@@ -63,16 +63,16 @@ impl AudioPlay {
 
     pub fn from_disk(
         file_path: &str,
-        play_type: AudioPlayType,
-    ) -> Result<AudioPlay, AudioLoaderError> {
+        play_type: AudioTrackType,
+    ) -> Result<AudioTrack, AudioLoaderError> {
         let mut raw_sample = audrey::open(file_path).map_err(|e| AudioLoaderError::ReadError(e))?;
         Self::from_reader(&mut raw_sample, play_type)
     }
 
     pub fn from_embed(
         file_path: &str,
-        play_type: AudioPlayType,
-    ) -> Result<AudioPlay, AudioLoaderError> {
+        play_type: AudioTrackType,
+    ) -> Result<AudioTrack, AudioLoaderError> {
         let file = get_embed_file(file_path).ok_or(AudioLoaderError::FileNotFound)?;
         let mut raw_sample = audrey::read::Reader::new(std::io::Cursor::new(file.data))
             .map_err(|err| AudioLoaderError::ReadError(err))?;

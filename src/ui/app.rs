@@ -1,5 +1,3 @@
-use std::sync::{Arc, Mutex};
-
 use iced::{
     Element, Event, Subscription, Task, event,
     keyboard::{self, key},
@@ -9,7 +7,7 @@ use iced::{
 use crate::{
     audio::{
         manager::AudioManager,
-        play::{AudioPlay, AudioPlayType},
+        track::{AudioTrack, AudioTrackType},
     },
     ui::{
         message::Message,
@@ -65,15 +63,14 @@ impl App {
             .build_stream()
             .expect("Unable to build audio stream");
         let audio_stream = app.audio_manager.stream.clone();
-        let audio_mixer = app.audio_manager.mixer.clone();
+        // let audio_mixer = app.audio_manager.mixer.clone();
         std::thread::spawn(move || {
             let stream = audio_stream.lock().unwrap();
-            let mut mixer = audio_mixer.lock().unwrap();
+            // let mut mixer = audio_mixer.lock().unwrap();
 
-            let mut test_sample =
-                AudioPlay::from_embed("test/test.wav", AudioPlayType::TEST).unwrap();
-            test_sample.set_playing(true);
-            mixer.add_track(test_sample);
+            // let mut test_sample =
+            // AudioPlay::from_embed("test/test.wav", AudioPlayType::TEST).unwrap();
+            // mixer.add_track(test_sample);
 
             match stream.play_stream() {
                 Ok(()) => println!("Audio start"),
