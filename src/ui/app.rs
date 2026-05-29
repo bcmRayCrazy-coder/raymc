@@ -1,14 +1,22 @@
+use std::sync::{Arc, Mutex};
+
 use iced::{
     Element, Event, Subscription, Task, event,
     keyboard::{self, key},
     window,
 };
 
-use crate::ui::{
-    message::Message,
-    page::{
-        counter::CounterPage, launch::LaunchPage, menu::MenuPage, options::OptionsPage,
-        page::ViewPageManager,
+use crate::{
+    audio::{
+        manager::AudioManager,
+        play::{AudioPlay, AudioPlayType},
+    },
+    ui::{
+        message::Message,
+        page::{
+            counter::CounterPage, launch::LaunchPage, menu::MenuPage, options::OptionsPage,
+            page::ViewPageManager,
+        },
     },
 };
 
@@ -34,12 +42,14 @@ pub enum ViewPageName {
 
 pub struct App {
     pub view_page_manager: ViewPageManager,
+    audio_manager: Arc<Mutex<AudioManager>>,
 }
 
 impl App {
     pub fn new() -> Self {
         App {
             view_page_manager: ViewPageManager::new(),
+            audio_manager: Arc::new(Mutex::new(AudioManager::default())),
         }
     }
 
@@ -50,6 +60,20 @@ impl App {
         app.view_page_manager.register(LaunchPage::new());
         app.view_page_manager.register(MenuPage::new());
         app.view_page_manager.register(OptionsPage::new());
+
+        let audio_manager = app.audio_manager.clone();
+        std::thread::spawn(move || {
+            let mut audio_manager = audio_manager.lock().unwrap();
+            let mut test_sample =
+                AudioPlay::from_embed("test/test.wav", AudioPlayType::TEST).unwrap();
+            test_sample.set_playing(true);
+            audio_manager.mixer.lock().unwrap().add_track(test_sample);
+
+            match audio_manager.start() {
+                Ok(()) => println!("Audio start"),
+                Err(err) => eprintln!("Unable to start audio! {:?}", err),
+            }
+        });
 
         (app, Task::done(Message::OnPageShow))
     }

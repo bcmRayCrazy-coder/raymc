@@ -8,8 +8,8 @@ use iced::{
 };
 
 use crate::{
-    ui::{app::ViewPageName, message::Message, page::page::ViewPage},
     cache::{self, get_cached_image_handle_list},
+    ui::{app::ViewPageName, message::Message, page::page::ViewPage},
 };
 
 pub struct LaunchPage {}

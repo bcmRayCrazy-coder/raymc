@@ -2,15 +2,13 @@ use iced::{Element, Task, widget};
 use iced_anim::{AnimationBuilder, Easing};
 
 use crate::{
+    cache::{self},
     ui::{
         app::{QuickKey, ViewPageName},
         message::{CounterMessage, Message},
         page::page::ViewPage,
     },
-    cache::{self},
 };
-
-// TODO: Intergrate to ViewPage
 
 pub struct CounterPage {
     val: f32,
@@ -28,7 +26,7 @@ impl CounterPage {
 
 impl ViewPage for CounterPage {
     fn view(&self) -> Element<'_, Message> {
-        let animated_text = AnimationBuilder::new(self.val, |val| {
+        let animated_text = AnimationBuilder::new(self.val, move |val| {
             widget::text(format!("Text with size {}", self.val))
                 .size(val)
                 .into()

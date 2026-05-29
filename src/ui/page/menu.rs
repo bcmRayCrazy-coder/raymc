@@ -130,7 +130,7 @@ impl ViewPage for MenuPage {
                 self.widget_anim_list.update(event);
                 Task::none()
             }
-            
+
             Message::Menu(MenuMessage::UpdateIconScale(event)) => {
                 self.anim_icon_scale.update(event);
 

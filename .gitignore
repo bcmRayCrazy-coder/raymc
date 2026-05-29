@@ -1,3 +1,4 @@
 /target
 cargo.lock
 Cargo.lock
+assets/embed/test

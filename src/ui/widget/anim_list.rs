@@ -1,6 +1,6 @@
 use std::sync::Arc;
 
-use iced::{ Color, Element, Length::Fill, Padding, Renderer, Theme, widget};
+use iced::{Color, Element, Length::Fill, Padding, Renderer, Theme, widget};
 use iced_anim::{Animated, AnimationBuilder, Easing, Event, animation::animation};
 
 use crate::ui::message::Message;
@@ -48,7 +48,7 @@ impl AnimList {
                 self.style_default.clone()
             };
             let animated_item =
-                AnimationBuilder::new(item_style, |(item_size_val, item_color_val)| {
+                AnimationBuilder::new(item_style, move |(item_size_val, item_color_val)| {
                     widget::text(item.clone())
                         .size(item_size_val)
                         .color(item_color_val)

@@ -1,12 +1,18 @@
-mod ui;
+mod audio;
 mod cache;
 mod embed;
+mod ui;
 
-use ui::app::App;
+extern crate iced;
+extern crate iced_anim;
+extern crate once_cell;
+extern crate rust_embed;
+
 use iced::{
     Font, Theme, application,
     window::{Icon, Settings, icon},
 };
+use ui::app::App;
 
 fn load_app_icon(path: &str) -> Option<Icon> {
     let img = image::open(path).ok()?;
