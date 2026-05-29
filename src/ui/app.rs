@@ -42,14 +42,14 @@ pub enum ViewPageName {
 
 pub struct App {
     pub view_page_manager: ViewPageManager,
-    audio_manager: Arc<Mutex<AudioManager>>,
+    audio_manager: AudioManager,
 }
 
 impl App {
     pub fn new() -> Self {
         App {
             view_page_manager: ViewPageManager::new(),
-            audio_manager: Arc::new(Mutex::new(AudioManager::default())),
+            audio_manager: AudioManager::default(),
         }
     }
 
@@ -61,15 +61,21 @@ impl App {
         app.view_page_manager.register(MenuPage::new());
         app.view_page_manager.register(OptionsPage::new());
 
-        let audio_manager = app.audio_manager.clone();
+        app.audio_manager
+            .build_stream()
+            .expect("Unable to build audio stream");
+        let audio_stream = app.audio_manager.stream.clone();
+        let audio_mixer = app.audio_manager.mixer.clone();
         std::thread::spawn(move || {
-            let mut audio_manager = audio_manager.lock().unwrap();
+            let stream = audio_stream.lock().unwrap();
+            let mut mixer = audio_mixer.lock().unwrap();
+
             let mut test_sample =
                 AudioPlay::from_embed("test/test.wav", AudioPlayType::TEST).unwrap();
             test_sample.set_playing(true);
-            audio_manager.mixer.lock().unwrap().add_track(test_sample);
+            mixer.add_track(test_sample);
 
-            match audio_manager.start() {
+            match stream.play_stream() {
                 Ok(()) => println!("Audio start"),
                 Err(err) => eprintln!("Unable to start audio! {:?}", err),
             }
