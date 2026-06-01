@@ -1,6 +1,5 @@
 use std::io::Seek;
 
-// use audrey::{Reader, read::ReadError};
 use symphonia::core::{
     audio::{Audio, GenericAudioBufferRef},
     codecs::audio::AudioDecoderOptions,
@@ -21,80 +20,57 @@ pub enum AudioLoaderError {
     NoAudio,
 }
 
-static DIV_128: f32 = 1.0 / 128.0;
+macro_rules! convert_audio {
+    ($buf:expr, $channels:expr, $frames:expr, $scale:expr, $offset:expr) => {
+        if $channels == 1 {
+            let plane = $buf.plane(0)?;
+            Some(
+                (0..$frames)
+                    .map(|i| {
+                        let s = (plane[i] as f32 - $offset) * $scale;
+                        [s, s]
+                    })
+                    .collect(),
+            )
+        } else {
+            let left = $buf.plane(0)?;
+            let right = $buf.plane(1)?;
+            Some(
+                (0..$frames)
+                    .map(|i| {
+                        [
+                            (left[i] as f32 - $offset) * $scale,
+                            (right[i] as f32 - $offset) * $scale,
+                        ]
+                    })
+                    .collect(),
+            )
+        }
+    };
+}
 
 fn convert_audio_buffer(gernic_buf: GenericAudioBufferRef<'_>) -> Option<Vec<[f32; 2]>> {
     let channels = gernic_buf.spec().channels().count();
     let frames = gernic_buf.frames();
 
     match gernic_buf {
-        GenericAudioBufferRef::F32(buf) => {
-            if channels == 1 {
-                let plane = buf.plane(0)?;
-                Some((0..frames).map(|i| [plane[i], plane[i]]).collect())
-            } else {
-                let left = buf.plane(0)?;
-                let right = buf.plane(1)?;
-                Some((0..frames).map(|i| [left[i], right[i]]).collect())
-            }
-        }
-        GenericAudioBufferRef::U8(buf) => {
-            if channels == 1 {
-                let plane = buf.plane(0)?;
-                Some(
-                    (0..frames)
-                        .map(|i| {
-                            let s = (plane[i] as f32 - 128.0) * DIV_128;
-                            [s, s]
-                        })
-                        .collect(),
-                )
-            } else {
-                let left = buf.plane(0)?;
-                let right = buf.plane(1)?;
-                Some(
-                    (0..frames)
-                        .map(|i| {
-                            [
-                                (left[i] as f32 - 128.0) * DIV_128,
-                                (right[i] as f32 - 128.0) * DIV_128,
-                            ]
-                        })
-                        .collect(),
-                )
-            }
-        }
-
+        GenericAudioBufferRef::F32(buf) => convert_audio!(buf, channels, frames, 1.0, 0.0),
+        GenericAudioBufferRef::F64(buf) => convert_audio!(buf, channels, frames, 1.0, 0.0),
+        GenericAudioBufferRef::S8(buf) => convert_audio!(buf, channels, frames, 1.0 / 127.0, 0.0),
         GenericAudioBufferRef::S16(buf) => {
-            let scale = 1.0 / i16::MAX as f32;
-            if channels == 1 {
-                let plane = buf.plane(0)?;
-                Some(
-                    (0..frames)
-                        .map(|i| {
-                            let s = (plane[i] as f32 * scale);
-                            [s, s]
-                        })
-                        .collect(),
-                )
-            } else {
-                let left = buf.plane(0)?;
-                let right = buf.plane(1)?;
-                Some(
-                    (0..frames)
-                        .map(|i| [left[i] as f32 * scale, right[i] as f32 * scale])
-                        .collect(),
-                )
-            }
+            convert_audio!(buf, channels, frames, 1.0 / 32767.0, 0.0)
         }
-        // TODO: Finish them (💀)
-        GenericAudioBufferRef::U16(_buf) => todo!("u16"),
-        GenericAudioBufferRef::U24(_buf) => todo!("u24"),
-        GenericAudioBufferRef::U32(_buf) => todo!("u32"),
-        GenericAudioBufferRef::S8(_buf) => todo!("s8"),
-        GenericAudioBufferRef::S24(_buf) => todo!("s24"),
-        GenericAudioBufferRef::S32(_buf) => todo!("s32"),
-        GenericAudioBufferRef::F64(_buf) => todo!("f64"),
+        GenericAudioBufferRef::S32(buf) => {
+            convert_audio!(buf, channels, frames, 1.0 / 2147483647.0, 0.0)
+        }
+        GenericAudioBufferRef::U8(buf) => convert_audio!(buf, channels, frames, 1.0 / 128.0, 128.0),
+        GenericAudioBufferRef::U16(buf) => {
+            convert_audio!(buf, channels, frames, 1.0 / 32768.0, 32768.0)
+        }
+        GenericAudioBufferRef::U32(buf) => {
+            convert_audio!(buf, channels, frames, 1.0 / 2147483648.0, 2147483648.0)
+        }
+        _ => None,
     }
 }
 
