@@ -20,8 +20,8 @@ pub struct AudioManager {
 impl AudioManager {
     pub fn new(stream: AudioStream) -> Self {
         Self {
+            mixer: Arc::new(Mutex::new(AudioMixer::new(stream.sample_rate()))),
             stream: Arc::new(Mutex::new(stream)),
-            mixer: Arc::new(Mutex::new(AudioMixer::new())),
             volume: 1.0,
             is_started: false,
         }
@@ -91,7 +91,7 @@ impl Default for AudioManager {
             .expect("Unable to get default audio config");
 
         let stream = AudioStream::new(host, device, config);
-        let mixer = AudioMixer::new();
+        let mixer = AudioMixer::new(stream.sample_rate());
 
         Self {
             stream: Arc::new(Mutex::new(stream)),

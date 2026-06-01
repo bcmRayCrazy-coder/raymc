@@ -12,7 +12,7 @@ pub struct AudioTrack {
     sample_rate: u32,
     is_playing: bool,
     pub stop_pos: usize,
-    pub current_pos: usize,
+    pub current_pos: f32,
     pub volume: f32,
 }
 
@@ -20,7 +20,7 @@ impl AudioTrack {
     pub fn new(track_type: AudioTrackType, sample: Vec<[f32; 2]>, sample_rate: u32) -> Self {
         Self {
             stop_pos: sample.len(),
-            current_pos: 0,
+            current_pos: 0.0,
             volume: 1.0,
 
             track_type,
@@ -30,7 +30,7 @@ impl AudioTrack {
         }
     }
 
-    pub fn tick_sample(&mut self) -> [f32; 2] {
+    pub fn tick_sample(&mut self, target_sample_rate: u32) -> [f32; 2] {
         if !self.is_playing() {
             return [0.0; 2];
         }
@@ -38,8 +38,9 @@ impl AudioTrack {
             self.set_playing(false);
             return [0.0; 2];
         }
-        let sample = self.sample[self.current_pos].map(|s| s * self.volume);
-        self.current_pos += 1;
+        let pos = self.current_pos.floor() as usize;
+        let sample = self.sample[pos].map(|s| s * self.volume);
+        self.current_pos += self.sample_rate as f32 / target_sample_rate as f32;
         return sample;
     }
 
@@ -56,7 +57,7 @@ impl AudioTrack {
     }
 
     pub fn is_end(&self) -> bool {
-        self.current_pos >= self.stop_pos
+        self.current_pos >= self.stop_pos as f32
     }
 
     pub fn set_playing(&mut self, play: bool) {
@@ -64,7 +65,7 @@ impl AudioTrack {
     }
 
     pub fn replay(&mut self) {
-        self.current_pos = 0;
+        self.current_pos = 0.0;
         self.is_playing = true;
     }
 }

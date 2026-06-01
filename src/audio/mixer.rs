@@ -5,11 +5,15 @@ use crate::audio::track::{AudioTrack, AudioTrackType};
 #[derive(Debug)]
 pub struct AudioMixer {
     tracks: Vec<AudioTrack>,
+    sample_rate: u32,
 }
 
 impl AudioMixer {
-    pub fn new() -> Self {
-        Self { tracks: Vec::new() }
+    pub fn new(sample_rate: u32) -> Self {
+        Self {
+            tracks: Vec::new(),
+            sample_rate,
+        }
     }
 
     pub fn tick_sample(&mut self) -> [f32; 2] {
@@ -17,7 +21,7 @@ impl AudioMixer {
         let mut sample1 = 0.0;
 
         for play in self.tracks.iter_mut() {
-            let sample = play.tick_sample();
+            let sample = play.tick_sample(self.sample_rate);
             sample0 += sample[0];
             sample1 += sample[1];
         }
