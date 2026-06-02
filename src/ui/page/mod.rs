@@ -1,3 +1,4 @@
+pub mod album;
 pub mod counter;
 pub mod launch;
 pub mod menu;
