@@ -116,24 +116,21 @@ impl AnimList {
     }
 
     pub fn on_update<T: Fn(AnimListEvent) -> Message + Send + Sync + 'static>(
-        &self,
+        mut self,
         build_message: T,
     ) -> Self {
-        let mut new_self = self.clone();
-        new_self.on_update = Some(Arc::new(build_message));
-        new_self
+        self.on_update = Some(Arc::new(build_message));
+        self
     }
 
-    pub fn style_default(&self, size: f32, color: Color) -> Self {
-        let mut new_self = self.clone();
-        new_self.style_default = (size, color);
-        new_self
+    pub fn style_default(mut self, size: f32, color: Color) -> Self {
+        self.style_default = (size, color);
+        self
     }
 
-    pub fn style_highlight(&self, size: f32, color: Color) -> Self {
-        let mut new_self = self.clone();
-        new_self.style_highlight = (size, color);
-        new_self
+    pub fn style_highlight(mut self, size: f32, color: Color) -> Self {
+        self.style_highlight = (size, color);
+        self
     }
 
     pub fn current(&self) -> usize {

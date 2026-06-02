@@ -17,7 +17,6 @@ use crate::{
 };
 
 pub struct MenuPage {
-    list: Vec<String>,
     list_icon: Vec<String>,
     // current_item: usize,
     current_icon: usize,
@@ -28,18 +27,18 @@ pub struct MenuPage {
     widget_anim_list: AnimList,
 
     anim_icon_scale: Animated<f32>,
-    anim_padding_y: Animated<f32>,
 }
 
 impl MenuPage {
     pub fn new() -> Self {
-        let mut s = Self {
-            list: vec![
-                "Playlist".to_owned(),
-                "Album".to_owned(),
-                "Options".to_owned(),
-                "Quit".to_owned(),
-            ],
+        let list = vec![
+            "Playlist".to_owned(),
+            "Album".to_owned(),
+            "Options".to_owned(),
+            "Quit".to_owned(),
+        ];
+        // let mut s =
+        Self {
             list_icon: vec![
                 "icons/playlist.png".to_owned(),
                 "icons/album.png".to_owned(),
@@ -52,18 +51,12 @@ impl MenuPage {
             page_width: 0.0,
             page_height: 0.0,
 
-            widget_anim_list: AnimList::new(),
+            widget_anim_list: AnimList::new()
+                .list(list.clone())
+                .on_update(|e| Message::Menu(MenuMessage::UpdateAnimList(e))),
 
             anim_icon_scale: Animated::transition(1.0, Easing::EASE_OUT.very_quick()),
-            anim_padding_y: Animated::transition(0.0, Easing::EASE_IN_OUT.quick()),
-        };
-
-        s.widget_anim_list = s
-            .widget_anim_list
-            .list(s.list.clone())
-            .on_update(|e| Message::Menu(MenuMessage::UpdateAnimList(e)));
-
-        s
+        }
     }
 
     fn widget_list(&self) -> Element<'_, Message> {
@@ -121,6 +114,7 @@ impl ViewPage for MenuPage {
     ) -> iced::Task<crate::ui::message::Message> {
         match message {
             Message::Menu(MenuMessage::ConfirmSelect) => match self.widget_anim_list.current() {
+                1 => Task::done(Message::ActionPageJump(ViewPageName::Album)),
                 2 => Task::done(Message::ActionPageJump(ViewPageName::Options)),
                 3 => Task::done(Message::ActionQuit),
                 _ => Task::none(),

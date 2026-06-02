@@ -23,7 +23,6 @@ fn load_app_icon(path: &str) -> Option<Icon> {
 fn main() -> iced::Result {
     println!("Start Application Ray Music Center");
 
-    config::init_app_dir();
     cache::load_cached_asset();
 
     let app_settings = Settings {

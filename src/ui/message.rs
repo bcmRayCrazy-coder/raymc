@@ -26,6 +26,7 @@ pub enum Message {
 
     Counter(CounterMessage),
     Menu(MenuMessage),
+    Album(AlbumMessage),
 
     None,
 }
@@ -36,9 +37,14 @@ pub enum AudioMessage {
 }
 
 #[derive(Debug, Clone)]
-
 pub enum MenuMessage {
     UpdateIconScale(Event<f32>),
+    UpdateAnimList(AnimListEvent),
+    ConfirmSelect,
+}
+
+#[derive(Debug, Clone)]
+pub enum AlbumMessage {
     UpdateAnimList(AnimListEvent),
     ConfirmSelect,
 }

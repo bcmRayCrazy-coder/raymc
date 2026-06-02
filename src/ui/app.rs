@@ -5,15 +5,12 @@ use iced::{
 };
 
 use crate::{
-    audio::{
-        manager::AudioManager,
-        track::{AudioTrack, AudioTrackType},
-    },
+    audio::manager::AudioManager,
     ui::{
         message::Message,
         page::{
-            counter::CounterPage, launch::LaunchPage, menu::MenuPage, options::OptionsPage,
-            page::ViewPageManager,
+            album::AlbumPage, counter::CounterPage, launch::LaunchPage, menu::MenuPage,
+            options::OptionsPage, page::ViewPageManager,
         },
     },
 };
@@ -33,6 +30,7 @@ pub enum ViewPageName {
     Launch,
     Menu,
     Options,
+    Album,
 
     // For Test Purpose
     Counter,
@@ -58,6 +56,7 @@ impl App {
         app.view_page_manager.register(LaunchPage::new());
         app.view_page_manager.register(MenuPage::new());
         app.view_page_manager.register(OptionsPage::new());
+        app.view_page_manager.register(AlbumPage::new());
 
         Self::boot_audio(&mut app);
 
