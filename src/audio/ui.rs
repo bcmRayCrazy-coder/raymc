@@ -1,5 +1,3 @@
-use std::sync::PoisonError;
-
 use iced::Task;
 
 use crate::{
@@ -59,8 +57,7 @@ impl App {
                     .replay_track(AudioTrackType::UI(name))
                     .inspect_err(|err| eprintln!("Unable to play UI Audio! {:?}", err));
                 Task::none()
-            }
-            _ => Task::none(),
+            } // _ => Task::none(),
         }
     }
 }

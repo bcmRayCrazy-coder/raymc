@@ -2,6 +2,7 @@
 pub enum AudioTrackType {
     UI(&'static str),
 
+    #[allow(unused)]
     TEST,
 }
 
