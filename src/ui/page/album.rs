@@ -1,6 +1,7 @@
 use std::fs;
 
 use iced::{Element, Length::Fill, Padding, Task, widget};
+use iced_anim::{Animated, Easing, animation::animation};
 
 use crate::{
     cache, config,
@@ -12,6 +13,8 @@ use crate::{
     },
 };
 
+pub enum AlbumState {}
+
 pub struct AlbumPage {
     album_list: Vec<String>,
 
@@ -19,6 +22,8 @@ pub struct AlbumPage {
     page_height: f32,
 
     widget_anim_list: AnimList,
+
+    anim_page_transition: Animated<f32>,
 }
 
 impl AlbumPage {
@@ -31,7 +36,18 @@ impl AlbumPage {
 
             widget_anim_list: AnimList::new()
                 .on_update(|e| Message::Album(AlbumMessage::UpdateAnimList(e))),
+
+            anim_page_transition: Animated::transition(0.0, Easing::EASE_IN.quick()),
         }
+    }
+
+    fn jump_page(&mut self, message: Message) -> Task<Message> {
+        self.anim_page_transition
+            .update(iced_anim::Event::Target(0.0));
+        Task::perform(
+            tokio::time::sleep(self.anim_page_transition.duration()),
+            |_| message,
+        )
     }
 }
 
@@ -42,9 +58,18 @@ impl ViewPage for AlbumPage {
             .height(Fill)
             .content_fit(iced::ContentFit::Cover);
 
-        let widget_list = widget::container(self.widget_anim_list.widget())
-            .padding(Padding::new(self.page_width * 0.08).top(self.page_height * 0.6))
-            .height(Fill);
+        let widget_list = animation(
+            &self.anim_page_transition,
+            widget::container(self.widget_anim_list.widget())
+                .padding(
+                    Padding::new(
+                        self.page_width * 0.08 * (self.anim_page_transition.value() * 2.0 - 1.0),
+                    )
+                    .top(self.page_height * 0.6),
+                )
+                .height(Fill),
+        )
+        .on_update(|e| Message::Album(AlbumMessage::UpdateAnimPageTransition(e)));
 
         widget::stack![background, widget_list]
             .height(Fill)
@@ -59,9 +84,14 @@ impl ViewPage for AlbumPage {
                 Task::none()
             }
 
+            Message::Album(AlbumMessage::UpdateAnimPageTransition(e)) => {
+                self.anim_page_transition.update(e);
+                Task::none()
+            }
+
             Message::OnPageShow => {
                 let (album_dir, first_created) = config::get_app_subdir("album");
-                println!("Page show. Album dir {:?}", album_dir);
+                // println!("Page show. Album dir {:?}", album_dir);
 
                 if first_created {
                     println!("Write to {:?}", album_dir.join("PUT_SONGS_HERE.txt"));
@@ -77,7 +107,7 @@ impl ViewPage for AlbumPage {
                             && let Ok(file_type) = entry.file_type()
                             && file_type.is_dir()
                         {
-                            println!("Album {}", entry.file_name().to_str().unwrap_or("Unknown"));
+                            // println!("Album {}", entry.file_name().to_str().unwrap_or("Unknown"));
                             self.album_list.push(match entry.file_name().to_str() {
                                 Some(name) => name.to_owned(),
                                 None => {
@@ -90,18 +120,22 @@ impl ViewPage for AlbumPage {
                     }
                     self.widget_anim_list = self.widget_anim_list.list(self.album_list.clone());
                 }
+
+                self.anim_page_transition
+                    .update(iced_anim::Event::Target(1.0));
                 Task::none()
             }
 
             Message::OnWindowResize(size) => {
                 self.page_width = size.width;
                 self.page_height = size.height;
-                // self.update_list_scroll();
+
                 Task::none()
             }
 
             Message::QuickKeyAction(key) => match key {
-                QuickKey::KEY0 => Task::done(Message::ActionPageBack),
+                // QuickKey::KEY0 => Task::done(Message::ActionPageBack),
+                QuickKey::KEY0 => self.jump_page(Message::ActionPageBack),
                 QuickKey::KEY2 => Task::done(Message::Album(AlbumMessage::ConfirmSelect)),
                 QuickKey::KEYL => {
                     if self.widget_anim_list.scroll_prev() {

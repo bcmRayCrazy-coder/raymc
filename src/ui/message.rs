@@ -39,6 +39,7 @@ pub enum AudioMessage {
 #[derive(Debug, Clone)]
 pub enum MenuMessage {
     UpdateIconScale(Event<f32>),
+    UpdateAnimPageTransition(Event<f32>),
     UpdateAnimList(AnimListEvent),
     ConfirmSelect,
 }
@@ -46,6 +47,7 @@ pub enum MenuMessage {
 #[derive(Debug, Clone)]
 pub enum AlbumMessage {
     UpdateAnimList(AnimListEvent),
+    UpdateAnimPageTransition(Event<f32>),
     ConfirmSelect,
 }
 

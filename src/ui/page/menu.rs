@@ -18,7 +18,6 @@ use crate::{
 
 pub struct MenuPage {
     list_icon: Vec<String>,
-    // current_item: usize,
     current_icon: usize,
 
     page_width: f32,
@@ -27,6 +26,7 @@ pub struct MenuPage {
     widget_anim_list: AnimList,
 
     anim_icon_scale: Animated<f32>,
+    anim_page_transition: Animated<f32>,
 }
 
 impl MenuPage {
@@ -37,7 +37,6 @@ impl MenuPage {
             "Options".to_owned(),
             "Quit".to_owned(),
         ];
-        // let mut s =
         Self {
             list_icon: vec![
                 "icons/playlist.png".to_owned(),
@@ -45,7 +44,6 @@ impl MenuPage {
                 "icons/options.png".to_owned(),
                 "icons/quit.png".to_owned(),
             ],
-            // current_item: 0,
             current_icon: 0,
 
             page_width: 0.0,
@@ -56,6 +54,7 @@ impl MenuPage {
                 .on_update(|e| Message::Menu(MenuMessage::UpdateAnimList(e))),
 
             anim_icon_scale: Animated::transition(1.0, Easing::EASE_OUT.very_quick()),
+            anim_page_transition: Animated::transition(0.0, Easing::EASE_IN.very_quick()),
         }
     }
 
@@ -83,18 +82,36 @@ impl MenuPage {
         ]
         .into()
     }
+
+    fn jump_page(&mut self, message: Message) -> Task<Message> {
+        self.anim_page_transition
+            .update(iced_anim::Event::Target(0.0));
+        Task::perform(
+            tokio::time::sleep(self.anim_page_transition.duration()),
+            |_| message,
+        )
+    }
 }
 
 impl ViewPage for MenuPage {
-    fn view(&self) -> iced::Element<'_, crate::ui::message::Message> {
+    fn view(&self) -> iced::Element<'_, Message> {
         let background = widget::image(cache::get_cached_image_handle("bg.png").unwrap())
             .width(Fill)
             .height(Fill)
             .content_fit(iced::ContentFit::Cover);
 
-        let widget_list = widget::container(self.widget_list())
-            .padding(Padding::new(self.page_width * 0.08).top(self.page_height * 0.6))
-            .height(Fill);
+        let widget_list = animation(
+            &self.anim_page_transition,
+            widget::container(self.widget_list())
+                .padding(
+                    Padding::new(
+                        self.page_width * 0.08 * (self.anim_page_transition.value() * 2.0 - 1.0),
+                    )
+                    .top(self.page_height * 0.6),
+                )
+                .height(Fill),
+        )
+        .on_update(|e| Message::Menu(MenuMessage::UpdateAnimPageTransition(e)));
 
         let widget_icon = animation(
             &self.anim_icon_scale,
@@ -108,20 +125,22 @@ impl ViewPage for MenuPage {
         widget::stack![background, widget_icon, widget_list].into()
     }
 
-    fn update(
-        &mut self,
-        message: crate::ui::message::Message,
-    ) -> iced::Task<crate::ui::message::Message> {
+    fn update(&mut self, message: Message) -> iced::Task<Message> {
         match message {
             Message::Menu(MenuMessage::ConfirmSelect) => match self.widget_anim_list.current() {
-                1 => Task::done(Message::ActionPageJump(ViewPageName::Album)),
-                2 => Task::done(Message::ActionPageJump(ViewPageName::Options)),
+                1 => self.jump_page(Message::ActionPageJump(ViewPageName::Album)),
+                2 => self.jump_page(Message::ActionPageJump(ViewPageName::Options)),
                 3 => Task::done(Message::ActionQuit),
                 _ => Task::none(),
             },
 
             Message::Menu(MenuMessage::UpdateAnimList(event)) => {
                 self.widget_anim_list.update(event);
+                Task::none()
+            }
+
+            Message::Menu(MenuMessage::UpdateAnimPageTransition(event)) => {
+                self.anim_page_transition.update(event);
                 Task::none()
             }
 
@@ -136,12 +155,16 @@ impl ViewPage for MenuPage {
                 Task::none()
             }
 
-            Message::OnPageShow => Task::none(),
+            Message::OnPageShow => {
+                self.anim_page_transition
+                    .update(iced_anim::Event::Target(1.0));
+                Task::none()
+            }
 
             Message::OnWindowResize(size) => {
                 self.page_width = size.width;
                 self.page_height = size.height;
-                // self.update_list_scroll();
+
                 Task::none()
             }
 

@@ -73,7 +73,7 @@ impl ViewPage for LaunchPage {
         }
     }
 
-    fn name(&self) -> crate::ui::app::ViewPageName {
-        crate::ui::app::ViewPageName::Launch
+    fn name(&self) -> ViewPageName {
+        ViewPageName::Launch
     }
 }

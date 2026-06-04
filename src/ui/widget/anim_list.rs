@@ -39,7 +39,7 @@ impl AnimList {
     }
 
     fn widget_list(&self) -> Element<'_, Message, Theme, Renderer> {
-        let mut widget_list = widget::Column::new().spacing(10);
+        let mut widget_list = widget::Column::new().spacing(10).height(Fill);
 
         for (index, item) in self.list.iter().enumerate() {
             let item_style = if index == self.current {
@@ -70,7 +70,7 @@ impl AnimList {
             &self.anim_padding_y,
             widget::container(self.widget_list())
                 .padding(Padding::new(0.0).top(iced::Pixels::from(*self.anim_padding_y.value())))
-                .height(Fill), // .clip(true),
+                .height(Fill),
         )
         .on_update(move |e| match &on_update {
             Some(f) => f(AnimListEvent::UpdatePaddingY(e)),
