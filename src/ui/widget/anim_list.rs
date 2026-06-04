@@ -1,6 +1,11 @@
 use std::sync::Arc;
 
-use iced::{Color, Element, Length::Fill, Padding, Renderer, Theme, widget};
+use iced::{
+    Color, Element,
+    Length::Fill,
+    Padding, Renderer, Theme,
+    widget::{self},
+};
 use iced_anim::{Animated, AnimationBuilder, Easing, Event, animation::animation};
 
 use crate::ui::message::Message;
@@ -31,15 +36,14 @@ impl AnimList {
             anim_padding_y: Animated::transition(0.0, Easing::EASE_IN_OUT.quick()),
 
             on_update: None,
-            evulate_y: |i| (10.0 + 38.0) * i,
-
+            evulate_y: |i| (10.0 + 38.7) * i,
             style_default: (30.0, Color::from_rgba(0.85, 0.85, 0.85, 0.68)),
             style_highlight: (50.0, Color::from_rgba(0.9, 0.9, 0.9, 0.98)),
         }
     }
 
     fn widget_list(&self) -> Element<'_, Message, Theme, Renderer> {
-        let mut widget_list = widget::Column::new().spacing(10).height(Fill);
+        let mut widget_list = widget::Column::new();
 
         for (index, item) in self.list.iter().enumerate() {
             let item_style = if index == self.current {
@@ -57,7 +61,9 @@ impl AnimList {
                 .animates_layout(true)
                 .animation(Easing::EASE_IN_OUT.quick());
 
-            widget_list = widget_list.push(animated_item);
+            widget_list = widget_list
+                .push(animated_item)
+                .push(widget::space().height(10));
         }
 
         widget_list.into()
@@ -69,7 +75,11 @@ impl AnimList {
         animation(
             &self.anim_padding_y,
             widget::container(self.widget_list())
-                .padding(Padding::new(0.0).top(iced::Pixels::from(*self.anim_padding_y.value())))
+                .padding(
+                    Padding::new(0.0)
+                        .bottom(0)
+                        .top(iced::Pixels::from(*self.anim_padding_y.value())),
+                )
                 .height(Fill),
         )
         .on_update(move |e| match &on_update {
