@@ -104,10 +104,13 @@ impl ViewPage for MenuPage<'_> {
             &self.anim_page_transition,
             widget::container(self.widget_list())
                 .padding(
-                    Padding::new(
-                        self.page_width * 0.08 * (self.anim_page_transition.value() * 2.0 - 1.0),
-                    )
-                    .top(self.page_height * 0.6),
+                    Padding::new(0.0)
+                        .left(
+                            self.page_width
+                                * 0.08
+                                * (self.anim_page_transition.value() * 2.0 - 1.0),
+                        )
+                        .top(self.page_height * 0.6),
                 )
                 .height(Fill),
         )

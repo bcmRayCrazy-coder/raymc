@@ -2,7 +2,9 @@ use iced::{Size, window};
 use iced_anim::Event;
 
 use crate::ui::{
-    app::{QuickKey, ViewPageName}, page::album::AlbumName, widget::anim_list::AnimListEvent
+    app::{QuickKey, ViewPageName},
+    page::album::AlbumName,
+    widget::anim_list::AnimListEvent,
 };
 
 #[derive(Debug, Clone)]
@@ -51,7 +53,7 @@ pub enum AlbumMessage {
     ConfirmSelect,
 
     LoadAlbums,
-    LoadSongs(AlbumName)
+    LoadSongs(AlbumName),
 }
 
 #[derive(Debug, Clone)]

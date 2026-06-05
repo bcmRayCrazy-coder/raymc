@@ -26,7 +26,7 @@ impl ViewPageManager {
             pages: HashMap::new(),
             current_page: ViewPageName::Launch,
             history_page: Vec::new(),
-            page_size: Size::new(800.0, 600.0),
+            page_size: Size::new(1024.0, 768.0),
 
             window_id: None,
             window_closed: false,

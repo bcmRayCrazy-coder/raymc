@@ -20,8 +20,8 @@ pub enum AudioLoaderError {
     NoAudio,
 }
 
-const SUPPORTED_TYPE_EXT:&[&str] = &["mp3","wav"];
-pub fn is_supported_type(ext:&str)->bool{
+const SUPPORTED_TYPE_EXT: &[&str] = &["mp3", "wav"];
+pub fn is_supported_type(ext: &str) -> bool {
     SUPPORTED_TYPE_EXT.contains(&ext.to_lowercase().as_str())
 }
 
