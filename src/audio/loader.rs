@@ -20,6 +20,11 @@ pub enum AudioLoaderError {
     NoAudio,
 }
 
+const SUPPORTED_TYPE_EXT:&[&str] = &["mp3","wav"];
+pub fn is_supported_type(ext:&str)->bool{
+    SUPPORTED_TYPE_EXT.contains(&ext.to_lowercase().as_str())
+}
+
 macro_rules! convert_audio {
     ($buf:expr, $channels:expr, $frames:expr, $scale:expr, $offset:expr) => {
         if $channels == 1 {

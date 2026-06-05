@@ -2,8 +2,7 @@ use iced::{Size, window};
 use iced_anim::Event;
 
 use crate::ui::{
-    app::{QuickKey, ViewPageName},
-    widget::anim_list::AnimListEvent,
+    app::{QuickKey, ViewPageName}, page::album::AlbumName, widget::anim_list::AnimListEvent
 };
 
 #[derive(Debug, Clone)]
@@ -46,9 +45,13 @@ pub enum MenuMessage {
 
 #[derive(Debug, Clone)]
 pub enum AlbumMessage {
-    UpdateAnimList(AnimListEvent),
+    UpdateAnimAlbumList(AnimListEvent),
+    UpdateAnimSongList(AnimListEvent),
     UpdateAnimPageTransition(Event<f32>),
     ConfirmSelect,
+
+    LoadAlbums,
+    LoadSongs(AlbumName)
 }
 
 #[derive(Debug, Clone)]

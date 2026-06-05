@@ -1,8 +1,8 @@
 use std::sync::Arc;
 
 use iced::{
-    Color, Element,
-    Length::Fill,
+    Alignment, Color, Element,
+    Length::{self, Fill},
     Padding, Renderer, Theme,
     widget::{self},
 };
@@ -20,8 +20,9 @@ pub struct AnimList<'a, T>
 // where
 // T: Clone,
 {
-    list: Vec<T>,
-    current: usize,
+    pub list: Vec<T>,
+    pub current: usize,
+    pub spacing: f32,
     anim_padding_y: Animated<f32>,
 
     display: Arc<dyn Fn(T, f32) -> Element<'a, Message, Theme, Renderer> + Send + Sync>,
@@ -74,7 +75,7 @@ where
 
             widget_list = widget_list
                 .push(animated_item)
-                .push(widget::space().height(10));
+                .push(widget::space().height(self.spacing));
         }
 
         widget_list.into()
@@ -85,13 +86,19 @@ where
 
         animation(
             &self.anim_padding_y,
-            widget::container(self.widget_list())
-                .padding(
-                    Padding::new(0.0)
-                        .bottom(0)
-                        .top(iced::Pixels::from(*self.anim_padding_y.value())),
-                )
-                .height(Fill),
+            widget::container(
+                widget::container(self.widget_list())
+                    .align_x(Alignment::Start)
+                    .padding(
+                        Padding::new(0.0).top(iced::Pixels::from(*self.anim_padding_y.value())),
+                    )
+                    .height(Fill),
+            )
+            // .style(|_| widget::container::Style {
+            //     border: iced::Border::default().color(iced::Color::WHITE).width(1),
+            //     ..Default::default()
+            // })
+            .height(Fill),
         )
         .on_update(move |e| match &on_update {
             Some(f) => f(AnimListEvent::UpdatePaddingY(e)),
@@ -143,16 +150,6 @@ where
         self
     }
 
-    // pub fn style_default(mut self, size: f32, color: Color) -> Self {
-    //     self.style_default = (size, color);
-    //     self
-    // }
-
-    // pub fn style_highlight(mut self, size: f32, color: Color) -> Self {
-    //     self.style_highlight = (size, color);
-    //     self
-    // }
-
     pub fn current(&self) -> usize {
         self.current
     }
@@ -165,10 +162,13 @@ impl Default for AnimList<'_, String> {
         Self {
             list: vec!["".to_owned()],
             current: 0,
+            spacing: 22.0,
+
             anim_padding_y: Animated::transition(0.0, Easing::EASE_IN_OUT.quick()),
 
             display: Arc::new(|item, transition_val| {
                 widget::text(item)
+                    .height(transition_val * 20.0 + 30.0)
                     .size(transition_val * 20.0 + 30.0)
                     .color(Color::from_rgba(
                         0.85 + transition_val * 0.05,
@@ -176,10 +176,12 @@ impl Default for AnimList<'_, String> {
                         0.85 + transition_val * 0.05,
                         0.68 + transition_val * 0.3,
                     ))
+                    .wrapping(widget::text::Wrapping::None)
                     .into()
             }),
             on_update: None,
-            evulate_y: |i| (10.0 + 38.7) * i,
+            evulate_y: |i| (22.0 + 30.0) * i,
+            // evulate_y: |i| (10.0 + 38.7) * i,
         }
     }
 }
