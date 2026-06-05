@@ -15,18 +15,18 @@ use crate::{
 
 pub enum AlbumState {}
 
-pub struct AlbumPage {
+pub struct AlbumPage<'a> {
     album_list: Vec<String>,
 
     page_width: f32,
     page_height: f32,
 
-    widget_anim_list: AnimList,
+    widget_anim_list: AnimList<'a, String>,
 
     anim_page_transition: Animated<f32>,
 }
 
-impl AlbumPage {
+impl<'a> AlbumPage<'a> {
     pub fn new() -> Self {
         Self {
             album_list: vec!["Single".to_owned()],
@@ -34,7 +34,7 @@ impl AlbumPage {
             page_width: 0.0,
             page_height: 0.0,
 
-            widget_anim_list: AnimList::new()
+            widget_anim_list: AnimList::default()
                 .on_update(|e| Message::Album(AlbumMessage::UpdateAnimList(e))),
 
             anim_page_transition: Animated::transition(0.0, Easing::EASE_IN.quick()),
@@ -51,7 +51,7 @@ impl AlbumPage {
     }
 }
 
-impl ViewPage for AlbumPage {
+impl ViewPage for AlbumPage<'_> {
     fn view(&self) -> Element<'_, Message> {
         let background = widget::image(cache::get_cached_image_handle("bg.png").unwrap())
             .width(Fill)
@@ -118,7 +118,8 @@ impl ViewPage for AlbumPage {
                             });
                         }
                     }
-                    self.widget_anim_list = self.widget_anim_list.list(self.album_list.clone());
+                    self.widget_anim_list =
+                        self.widget_anim_list.clone().list(self.album_list.clone());
                 }
 
                 self.anim_page_transition

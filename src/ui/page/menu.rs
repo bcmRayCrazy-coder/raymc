@@ -16,20 +16,20 @@ use crate::{
     },
 };
 
-pub struct MenuPage {
+pub struct MenuPage<'a> {
     list_icon: Vec<String>,
     current_icon: usize,
 
     page_width: f32,
     page_height: f32,
 
-    widget_anim_list: AnimList,
+    widget_anim_list: AnimList<'a, String>,
 
     anim_icon_scale: Animated<f32>,
     anim_page_transition: Animated<f32>,
 }
 
-impl MenuPage {
+impl<'a> MenuPage<'a> {
     pub fn new() -> Self {
         let list = vec![
             "Playlist".to_owned(),
@@ -49,7 +49,7 @@ impl MenuPage {
             page_width: 0.0,
             page_height: 0.0,
 
-            widget_anim_list: AnimList::new()
+            widget_anim_list: AnimList::default()
                 .list(list.clone())
                 .on_update(|e| Message::Menu(MenuMessage::UpdateAnimList(e))),
 
@@ -93,7 +93,7 @@ impl MenuPage {
     }
 }
 
-impl ViewPage for MenuPage {
+impl ViewPage for MenuPage<'_> {
     fn view(&self) -> iced::Element<'_, Message> {
         let background = widget::image(cache::get_cached_image_handle("bg.png").unwrap())
             .width(Fill)
