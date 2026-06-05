@@ -53,6 +53,7 @@ impl<'a> AlbumPage<'a> {
             widget_anim_album_list: AnimList::default()
                 .on_update(|e| Message::Album(AlbumMessage::UpdateAnimAlbumList(e))),
             widget_anim_song_list: AnimList::default()
+                .disabled(true)
                 .on_update(|e| Message::Album(AlbumMessage::UpdateAnimSongList(e))),
 
             anim_page_transition: Animated::transition(0.0, Easing::EASE_IN.quick()),
@@ -91,8 +92,14 @@ impl<'a> AlbumPage<'a> {
     fn toggle_state(&mut self, state: &AlbumState) -> Task<Message> {
         self.album_state = state.clone();
         match state {
-            AlbumState::Album => Task::none(),
+            AlbumState::Album => {
+                self.widget_anim_album_list.disabled = false;
+                self.widget_anim_song_list.disabled = true;
+                Task::none()
+            }
             AlbumState::Song(album_name) => {
+                self.widget_anim_album_list.disabled = true;
+                self.widget_anim_song_list.disabled = false;
                 Task::done(Message::Album(AlbumMessage::LoadSongs(album_name.clone())))
             }
         }
@@ -195,11 +202,7 @@ impl ViewPage for AlbumPage<'_> {
                     }
 
                     self.widget_anim_album_list.list = self.album_list.clone();
-                    self.widget_anim_album_list.current = 0;
-                    // self.widget_anim_album_list = self
-                    //     .widget_anim_album_list
-                    //     .clone()
-                    //     .list(self.album_list.clone());
+                    self.widget_anim_album_list.reset_current();
                 }
 
                 self.anim_page_transition
@@ -241,11 +244,7 @@ impl ViewPage for AlbumPage<'_> {
 
                 self.widget_anim_song_list.list =
                     self.song_list.clone().unwrap_or(vec!["Empty".to_owned()]);
-                self.widget_anim_song_list.current = 0;
-                // self.widget_anim_song_list = self
-                // .widget_anim_song_list
-                // .clone()
-                // .list(self.song_list.clone().unwrap_or(vec!["Empty".to_owned()]));
+                self.widget_anim_song_list.reset_current();
 
                 Task::none()
             }

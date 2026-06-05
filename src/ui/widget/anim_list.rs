@@ -2,7 +2,7 @@ use std::sync::Arc;
 
 use iced::{
     Alignment, Color, Element,
-    Length::{self, Fill},
+    Length::Fill,
     Padding, Renderer, Theme,
     widget::{self},
 };
@@ -23,51 +23,31 @@ pub struct AnimList<'a, T>
     pub list: Vec<T>,
     pub current: usize,
     pub spacing: f32,
+    pub disabled: bool,
     anim_padding_y: Animated<f32>,
 
     display: Arc<dyn Fn(T, f32) -> Element<'a, Message, Theme, Renderer> + Send + Sync>,
 
     on_update: Option<Arc<dyn Fn(AnimListEvent) -> Message + Send + Sync>>,
     evulate_y: fn(f32) -> f32,
-    // style_default: (f32, Color),
-    // style_highlight: (f32, Color),
 }
 
 impl<'a, T> AnimList<'a, T>
 where
     T: Clone,
 {
-    // pub fn new() -> Self {
-    //     Self {
-    //         list: vec!["".to_owned()],
-    //         current: 0,
-    //         anim_padding_y: Animated::transition(0.0, Easing::EASE_IN_OUT.quick()),
-
-    //         on_update: None,
-    //         evulate_y: |i| (10.0 + 38.7) * i,
-    //         style_default: (30.0, Color::from_rgba(0.85, 0.85, 0.85, 0.68)),
-    //         style_highlight: (50.0, Color::from_rgba(0.9, 0.9, 0.9, 0.98)),
-    //     }
-    // }
-
     fn widget_list(&self) -> Element<'_, Message, Theme, Renderer> {
         let mut widget_list = widget::Column::new();
 
         for (index, item) in self.list.iter().enumerate() {
-            // let item_style = if index == self.current {
-            //     self.style_highlight.clone()
-            // } else {
-            //     self.style_default.clone()
-            // };
-            let item_transition: f32 = if index == self.current { 1.0 } else { 0.0 };
+            let item_transition: f32 = if !self.disabled && index == self.current {
+                1.0
+            } else {
+                0.0
+            };
             let fn_display = self.display.clone();
             let animated_item =
                 AnimationBuilder::new(item_transition, move |item_transition_val| {
-                    // widget::text(item.clone())
-                    //     .size(item_size_val)
-                    //     .color(item_color_val)
-                    //     .into()
-                    // self.display(item.clone(), item_transition_val)
                     fn_display(item.clone(), item_transition_val)
                 })
                 .animates_layout(true)
@@ -114,7 +94,7 @@ where
     }
 
     pub fn scroll_next(&mut self) -> bool {
-        if self.current < (self.list.len() - 1) {
+        if !self.disabled && self.current < (self.list.len() - 1) {
             self.current += 1;
             self.update_scroll();
             return true;
@@ -123,7 +103,7 @@ where
     }
 
     pub fn scroll_prev(&mut self) -> bool {
-        if self.current >= 1 {
+        if !self.disabled && self.current >= 1 {
             self.current -= 1;
             self.update_scroll();
             return true;
@@ -137,8 +117,18 @@ where
             .update(iced_anim::Event::Target(highlight_y * -1.0));
     }
 
+    pub fn reset_current(&mut self) {
+        self.current = 0;
+        self.update_scroll();
+    }
+
     pub fn list(mut self, list: Vec<T>) -> Self {
         self.list = list;
+        self
+    }
+
+    pub fn disabled(mut self, disabled: bool) -> Self {
+        self.disabled = disabled;
         self
     }
 
@@ -163,6 +153,7 @@ impl Default for AnimList<'_, String> {
             list: vec!["".to_owned()],
             current: 0,
             spacing: 22.0,
+            disabled: false,
 
             anim_padding_y: Animated::transition(0.0, Easing::EASE_IN_OUT.quick()),
 
