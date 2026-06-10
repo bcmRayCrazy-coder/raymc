@@ -14,6 +14,9 @@ pub enum Message {
     // Audio
     Audio(AudioMessage),
 
+    // Player
+    Player(PlayerMessage),
+
     // Page
     OnPageShow,
 
@@ -35,6 +38,13 @@ pub enum Message {
 #[derive(Debug, Clone)]
 pub enum AudioMessage {
     PlayUi(&'static str),
+}
+
+#[derive(Debug, Clone)]
+pub enum PlayerMessage {
+    LoopNext,
+    ListNext,
+    ListPrev,
 }
 
 #[derive(Debug, Clone)]

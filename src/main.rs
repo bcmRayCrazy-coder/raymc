@@ -2,6 +2,7 @@ mod audio;
 mod cache;
 mod config;
 mod embed;
+mod player;
 mod ui;
 
 extern crate iced;
