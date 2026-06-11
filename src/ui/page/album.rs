@@ -5,10 +5,7 @@ use iced_anim::{Animated, Easing, animation::animation};
 
 use crate::{
     cache, config,
-    player::{
-        album::{AlbumName, get_album_list},
-        playlist::{Playlist, PlaylistTrait},
-    },
+    player::album::{AlbumName, get_album_list},
     ui::{
         app::{QuickKey, ViewPageName},
         message::{AlbumMessage, AudioMessage, Message, PlayerMessage},

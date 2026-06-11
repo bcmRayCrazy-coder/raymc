@@ -4,6 +4,7 @@ use std::{env, fs};
 static APP_PATH_NAME: &str = "raymc";
 
 pub fn get_app_dir() -> (PathBuf, bool) {
+    #![allow(unused)]
     let mut app_dir = PathBuf::new();
 
     #[cfg(target_os = "windows")]
