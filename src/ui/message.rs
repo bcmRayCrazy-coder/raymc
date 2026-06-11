@@ -38,6 +38,9 @@ pub enum Message {
 #[derive(Debug, Clone)]
 pub enum AudioMessage {
     PlayUi(&'static str),
+    UpdatePlayerSong,
+    PlayerPlay,
+    PlayerPause
 }
 
 #[derive(Debug, Clone)]

@@ -18,15 +18,6 @@ pub struct AudioManager {
 }
 
 impl AudioManager {
-    // pub fn new(stream: AudioStream) -> Self {
-    //     Self {
-    //         mixer: Arc::new(Mutex::new(AudioMixer::new(stream.sample_rate()))),
-    //         stream: Arc::new(Mutex::new(stream)),
-    //         volume: Arc::new(Mutex::new(1.0)),
-    //         is_started: false,
-    //     }
-    // }
-
     pub fn build_stream(&mut self) -> Result<(), AudioError> {
         let stream = self.stream.lock().unwrap();
         let format = stream.sample_format().clone();

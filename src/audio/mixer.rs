@@ -48,11 +48,14 @@ impl AudioMixer {
         self.tracks.push(track);
     }
 
-    pub fn remove_track(&mut self, id: usize) -> bool {
-        if id >= self.tracks.len() {
-            return false;
-        }
-        self.tracks.remove(id);
-        true
+    // pub fn remove_track(&mut self, id: usize) -> bool {
+    //     if id >= self.tracks.len() {
+    //         return false;
+    //     }
+    //     self.tracks.remove(id);
+    //     true
+    // }
+    pub fn remove_tracks(&mut self, track_type:AudioTrackType) {
+        self.tracks.retain(|track| *track.track_type() != track_type);
     }
 }

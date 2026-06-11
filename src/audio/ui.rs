@@ -1,3 +1,5 @@
+use std::time::Duration;
+
 use iced::Task;
 
 use crate::{
@@ -27,6 +29,7 @@ impl App {
             mixer.add_track_vec(vec![
                 AudioTrack::from_embed("audio/chord.wav", AudioTrackType::UI("chord")).unwrap(),
                 AudioTrack::from_embed("audio/info.wav", AudioTrackType::UI("info")).unwrap(),
+                AudioTrack::new(AudioTrackType::PLAYER, vec![[0.0, 0.0]], 1),
             ]);
 
             drop(mixer);
@@ -57,7 +60,61 @@ impl App {
                     .replay_track(AudioTrackType::UI(name))
                     .inspect_err(|err| eprintln!("Unable to play UI Audio! {:?}", err));
                 Task::none()
-            } // _ => Task::none(),
+            }
+            AudioMessage::UpdatePlayerSong => {
+                let mixer = self.audio_manager.mixer.lock();
+                match mixer {
+                    Ok(mut mixer) => {
+                        mixer.remove_tracks(AudioTrackType::PLAYER);
+                        if let Some(current) = self.player_manager.current {
+                            let file = &self.player_manager.playlist[current];
+                            mixer.add_track(
+                                AudioTrack::from_disk(
+                                    &file.to_str().expect("Audio load failed"),
+                                    AudioTrackType::PLAYER,
+                                )
+                                .expect("Audio load failed"),
+                            );
+                        }
+                        Task::none()
+                    }
+                    Err(_) => Task::perform(tokio::time::sleep(Duration::from_millis(1)), |_| {
+                        Message::Audio(AudioMessage::UpdatePlayerSong)
+                    }),
+                }
+            }
+            AudioMessage::PlayerPlay => {
+                let mixer = self.audio_manager.mixer.lock();
+                match mixer {
+                    Ok(mut mixer) => {
+                        for track in mixer.filter_track_mut(AudioTrackType::PLAYER).iter_mut() {
+                            if track.is_end() {
+                                track.replay();
+                            } else {
+                                track.set_playing(true)
+                            }
+                        }
+                        Task::none()
+                    }
+                    Err(_) => Task::perform(tokio::time::sleep(Duration::from_millis(1)), |_| {
+                        Message::Audio(AudioMessage::UpdatePlayerSong)
+                    }),
+                }
+            }
+            AudioMessage::PlayerPause => {
+                let mixer = self.audio_manager.mixer.lock();
+                match mixer {
+                    Ok(mut mixer) => {
+                        for track in mixer.filter_track_mut(AudioTrackType::PLAYER).iter_mut() {
+                            track.set_playing(false);
+                        }
+                        Task::none()
+                    }
+                    Err(_) => Task::perform(tokio::time::sleep(Duration::from_millis(1)), |_| {
+                        Message::Audio(AudioMessage::UpdatePlayerSong)
+                    }),
+                }
+            }
         }
     }
 }

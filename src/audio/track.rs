@@ -1,6 +1,7 @@
 #[derive(Debug, Clone, PartialEq)]
 pub enum AudioTrackType {
     UI(&'static str),
+    PLAYER,
 
     #[allow(unused)]
     TEST,

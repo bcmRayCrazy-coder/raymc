@@ -2,7 +2,7 @@ use iced::Task;
 
 use crate::ui::{
     app::App,
-    message::{Message, PlayerMessage},
+    message::{AudioMessage, Message, PlayerMessage},
 };
 
 impl App {
@@ -10,15 +10,15 @@ impl App {
         match message {
             PlayerMessage::LoopNext => {
                 self.player_manager.loop_next();
-                Task::none()
+                Task::done(Message::Audio(AudioMessage::UpdatePlayerSong))
             }
             PlayerMessage::ListNext => {
                 self.player_manager.list_next();
-                Task::none()
+                Task::done(Message::Audio(AudioMessage::UpdatePlayerSong))
             }
             PlayerMessage::ListPrev => {
                 self.player_manager.list_prev();
-                Task::none()
+                Task::done(Message::Audio(AudioMessage::UpdatePlayerSong))
             }
         }
     }
