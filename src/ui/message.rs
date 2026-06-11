@@ -1,10 +1,12 @@
 use iced::{Size, window};
 use iced_anim::Event;
 
-use crate::ui::{
-    app::{QuickKey, ViewPageName},
-    page::album::AlbumName,
-    widget::anim_list::AnimListEvent,
+use crate::{
+    player::album::AlbumName,
+    ui::{
+        app::{QuickKey, ViewPageName},
+        widget::anim_list::AnimListEvent,
+    },
 };
 
 #[derive(Debug, Clone)]
@@ -65,7 +67,8 @@ pub enum AlbumMessage {
     UpdateAnimPageTransition(Event<f32>),
     ConfirmSelect,
 
-    LoadAlbums,
+    /* bool - refresh after loaded */
+    LoadAlbums(bool),
     LoadSongs(AlbumName),
 }
 

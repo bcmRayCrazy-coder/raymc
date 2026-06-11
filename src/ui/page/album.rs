@@ -4,8 +4,8 @@ use iced::{Element, Length::Fill, Padding, Task, widget};
 use iced_anim::{Animated, Easing, animation::animation};
 
 use crate::{
-    audio::loader,
     cache, config,
+    player::album::{AlbumName, get_album_list},
     ui::{
         app::{QuickKey, ViewPageName},
         message::{AlbumMessage, AudioMessage, Message},
@@ -13,12 +13,6 @@ use crate::{
         widget::anim_list::AnimList,
     },
 };
-
-#[derive(Debug, Clone)]
-pub enum AlbumName {
-    Single,
-    Album(String),
-}
 
 #[derive(Debug, Clone)]
 pub enum AlbumState {
@@ -178,63 +172,28 @@ impl ViewPage for AlbumPage<'_> {
                 }
             }
 
-            Message::Album(AlbumMessage::LoadAlbums) => {
-                let album_dir = self.album_dir();
+            Message::Album(AlbumMessage::LoadAlbums(refresh)) => {
                 self.album_list = vec!["Single".to_owned()];
+                let mut user_album_list = get_album_list(&self.album_dir());
+                self.album_list.append(&mut user_album_list);
 
-                if let Ok(entries) = fs::read_dir(album_dir) {
-                    let mut unknown_id_counter = 0;
-                    for entry in entries {
-                        if let Ok(entry) = entry
-                            && let Ok(file_type) = entry.file_type()
-                            && file_type.is_dir()
-                        {
-                            // println!("Album {}", entry.file_name().to_str().unwrap_or("Unknown"));
-                            self.album_list.push(match entry.file_name().to_str() {
-                                Some(name) => name.to_owned(),
-                                None => {
-                                    let name = format!("Unkown album #{}", unknown_id_counter);
-                                    unknown_id_counter += 1;
-                                    name
-                                }
-                            });
-                        }
-                    }
-
-                    self.widget_anim_album_list.list = self.album_list.clone();
-                    self.widget_anim_album_list.reset_current();
-                }
+                self.widget_anim_album_list.list = self.album_list.clone();
+                self.widget_anim_album_list.reset_current();
 
                 self.anim_page_transition
                     .update(iced_anim::Event::Target(1.0));
-                Task::none()
+
+                if refresh {
+                    Task::done(Message::Album(AlbumMessage::LoadSongs(
+                        self.current_album_name(),
+                    )))
+                } else {
+                    Task::none()
+                }
             }
 
             Message::Album(AlbumMessage::LoadSongs(album_name)) => {
-                let album_dir = self.album_dir();
-                let song_dir = match album_name {
-                    AlbumName::Single => album_dir,
-                    AlbumName::Album(dir) => album_dir.join(dir),
-                };
-
-                // println!("Load songs from {:?}", song_dir);
-
-                let mut song_list = Vec::new();
-                if let Ok(entries) = fs::read_dir(song_dir) {
-                    for entry in entries {
-                        if let Ok(entry) = entry
-                            && let Ok(file_type) = entry.file_type()
-                            && file_type.is_file()
-                            && let Some(Some(extension)) =
-                                entry.path().extension().map(|s| s.to_str())
-                            && loader::is_supported_type(&extension)
-                            && let Some(file_name) = entry.file_name().to_str()
-                        {
-                            // println!("Song {}", file_name);
-                            song_list.push(file_name.to_owned());
-                        }
-                    }
-                }
+                let song_list = album_name.get_songs(self.album_dir());
 
                 if song_list.len() > 0 {
                     self.song_list = Some(song_list);
@@ -249,8 +208,7 @@ impl ViewPage for AlbumPage<'_> {
                 Task::none()
             }
 
-            Message::OnPageShow => Task::done(Message::Album(AlbumMessage::LoadAlbums)),
-
+            Message::OnPageShow => Task::done(Message::Album(AlbumMessage::LoadAlbums(true))),
             Message::OnWindowResize(size) => {
                 self.page_width = size.width;
                 self.page_height = size.height;
