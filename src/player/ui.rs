@@ -1,8 +1,14 @@
 use iced::Task;
 
-use crate::ui::{
-    app::App,
-    message::{AudioMessage, Message, PlayerMessage},
+use crate::{
+    player::playlist::PlaylistTrait,
+    ui::{
+        app::App,
+        message::{
+            AudioMessage::{self, UpdatePlayerSong},
+            Message, PlayerMessage,
+        },
+    },
 };
 
 impl App {
@@ -19,6 +25,15 @@ impl App {
             PlayerMessage::ListPrev => {
                 self.player_manager.list_prev();
                 Task::done(Message::Audio(AudioMessage::UpdatePlayerSong))
+            }
+
+            PlayerMessage::InsertJumpNext(new) => {
+                let pos = self
+                    .player_manager
+                    .playlist
+                    .insert_next(self.player_manager.current, vec![new]);
+                self.player_manager.current = Some(pos);
+                Task::done(Message::Audio(UpdatePlayerSong))
             }
         }
     }

@@ -52,16 +52,18 @@ impl AudioManager {
 
             return stream.build_stream(move |output: &mut [T], _: &OutputCallbackInfo| {
                 for frame in output.chunks_mut(channel_num) {
-                    let mut mixer = mixer.lock().unwrap();
-                    let volume = volume.lock().unwrap().clone();
-
-                    let sample = mixer.tick_sample();
-                    for (channel, output_sample) in frame.iter_mut().enumerate() {
-                        *output_sample = T::from_sample(match channel {
-                            0 => sample[0] * volume,
-                            1 => sample[1] * volume,
-                            _ => 0.0,
-                        })
+                    if let Ok(mut mixer) = mixer.lock()
+                        && let Ok(volume) = volume.lock()
+                    {
+                        let volume = volume.clone();
+                        let sample = mixer.tick_sample();
+                        for (channel, output_sample) in frame.iter_mut().enumerate() {
+                            *output_sample = T::from_sample(match channel {
+                                0 => sample[0] * volume,
+                                1 => sample[1] * volume,
+                                _ => 0.0,
+                            })
+                        }
                     }
                 }
             });

@@ -9,14 +9,16 @@ pub enum AlbumName {
 }
 
 impl AlbumName {
-    pub fn get_songs(&self, album_dir: PathBuf) -> Vec<String> {
-        let song_dir = match self {
+    pub fn get_dir(&self, album_dir: PathBuf) -> PathBuf {
+        match self {
             AlbumName::Single => album_dir,
             AlbumName::Album(dir) => album_dir.join(dir),
-        };
+        }
+    }
 
+    pub fn get_songs(&self, album_dir: PathBuf) -> Vec<String> {
         let mut song_list = Vec::new();
-        if let Ok(entries) = fs::read_dir(song_dir) {
+        if let Ok(entries) = fs::read_dir(self.get_dir(album_dir)) {
             for entry in entries {
                 if let Ok(entry) = entry
                     && let Ok(file_type) = entry.file_type()

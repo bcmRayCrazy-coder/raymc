@@ -1,3 +1,5 @@
+use std::path::PathBuf;
+
 use iced::{Size, window};
 use iced_anim::Event;
 
@@ -50,6 +52,8 @@ pub enum PlayerMessage {
     LoopNext,
     ListNext,
     ListPrev,
+
+    InsertJumpNext(PathBuf),
 }
 
 #[derive(Debug, Clone)]

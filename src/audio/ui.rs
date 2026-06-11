@@ -67,27 +67,86 @@ impl App {
                 Task::none()
             }
             AudioMessage::UpdatePlayerSong => {
-                let mixer = self.audio_manager.mixer.lock();
-                match mixer {
-                    Ok(mut mixer) => {
-                        if let Some(current) = self.player_manager.current {
-                            let file = &self.player_manager.playlist[current];
-                            mixer.add_track(
-                                AudioTrack::from_disk(
-                                    &file.to_str().expect("Audio load failed"),
-                                    AudioTrackType::PLAYER,
-                                )
-                                .expect("Audio load failed"),
-                            );
-                        } else {
-                            mixer.tracks.remove(&AudioTrackType::PLAYER);
-                        }
-                        Task::none()
+                let mixer = self.audio_manager.mixer.clone();
+
+                match self.player_manager.current() {
+                    None => Task::perform::<bool>(
+                        async move {
+                            let unlocked = match mixer.lock() {
+                                Ok(mut mixer) => {
+                                    mixer.tracks.remove(&AudioTrackType::PLAYER);
+                                    true
+                                }
+                                Err(_) => false,
+                            };
+
+                            if !unlocked {
+                                tokio::time::sleep(Duration::from_millis(1)).await;
+                            }
+
+                            unlocked
+                        },
+                        |unlocked| match unlocked {
+                            true => Message::None,
+                            false => Message::Audio(AudioMessage::UpdatePlayerSong),
+                        },
+                    ),
+                    Some(current) => {
+                        let file = self.player_manager.playlist[current].clone();
+
+                        Task::perform::<bool>(
+                            async move {
+                                let unlocked = match mixer.lock() {
+                                    Ok(mut mixer) => {
+                                        mixer.add_track(
+                                            AudioTrack::from_disk(
+                                                file.to_str().expect("Audio load failed"),
+                                                AudioTrackType::PLAYER,
+                                            )
+                                            .expect("Audio load failed"),
+                                        );
+                                        true
+                                    }
+                                    Err(_) => false,
+                                };
+
+                                if !unlocked {
+                                    tokio::time::sleep(Duration::from_millis(1)).await;
+                                }
+
+                                unlocked
+                            },
+                            |unlocked| match unlocked {
+                                true => Message::Audio(AudioMessage::PlayerPlay),
+                                false => Message::Audio(AudioMessage::UpdatePlayerSong),
+                            },
+                        )
                     }
-                    Err(_) => Task::perform(tokio::time::sleep(Duration::from_millis(1)), |_| {
-                        Message::Audio(AudioMessage::UpdatePlayerSong)
-                    }),
                 }
+
+                // match mixer {
+                //     Ok(mut mixer) => Task::perform(
+                //         async move {
+                //             if let Some(current) = current {
+                //                 let file = &self.player_manager.playlist[current];
+                //                 println!("Play file {:?}", file);
+                //                 mixer.add_track(
+                //                     AudioTrack::from_disk(
+                //                         &file.to_str().expect("Audio load failed"),
+                //                         AudioTrackType::PLAYER,
+                //                     )
+                //                     .expect("Audio load failed"),
+                //                 );
+                //             } else {
+                //                 mixer.tracks.remove(&AudioTrackType::PLAYER);
+                //             }
+                //         },
+                //         |_| Message::Audio(AudioMessage::PlayerPlay),
+                //     ),
+                //     Err(_) => Task::perform(tokio::time::sleep(Duration::from_millis(1)), |_| {
+                //         Message::Audio(AudioMessage::UpdatePlayerSong)
+                //     }),
+                // }
             }
             AudioMessage::PlayerPlay => {
                 let mixer = self.audio_manager.mixer.lock();

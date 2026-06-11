@@ -1,4 +1,4 @@
 pub mod album;
-pub mod r#loop;
 pub mod manager;
+pub mod playlist;
 pub mod ui;

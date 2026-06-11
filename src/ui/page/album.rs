@@ -5,10 +5,13 @@ use iced_anim::{Animated, Easing, animation::animation};
 
 use crate::{
     cache, config,
-    player::album::{AlbumName, get_album_list},
+    player::{
+        album::{AlbumName, get_album_list},
+        playlist::{Playlist, PlaylistTrait},
+    },
     ui::{
         app::{QuickKey, ViewPageName},
-        message::{AlbumMessage, AudioMessage, Message},
+        message::{AlbumMessage, AudioMessage, Message, PlayerMessage},
         page::page::ViewPage,
         widget::anim_list::AnimList,
     },
@@ -167,8 +170,19 @@ impl ViewPage for AlbumPage<'_> {
                         self.toggle_state(&AlbumState::Song(self.current_album_name()))
                     }
 
-                    // TODO: Jump to player
-                    AlbumState::Song(_) => Task::none(),
+                    AlbumState::Song(_) => {
+                        Task::batch([
+                            Task::done(Message::Player(PlayerMessage::InsertJumpNext(
+                                self.current_album_name().get_dir(self.album_dir()).join(
+                                    self.widget_anim_song_list.list
+                                        [self.widget_anim_song_list.current()]
+                                    .clone(),
+                                ),
+                            ))),
+                            // TODO: Jump to player
+                            Task::none(),
+                        ])
+                    }
                 }
             }
 
