@@ -1,7 +1,7 @@
 use std::sync::{Arc, Mutex};
 
 use cpal::{
-    FromSample, OutputCallbackInfo, SizedSample,
+    FromSample, HostId, OutputCallbackInfo, SizedSample,
     traits::{DeviceTrait, HostTrait},
 };
 
@@ -78,13 +78,26 @@ impl AudioManager {
 
 impl Default for AudioManager {
     fn default() -> Self {
-        let host = cpal::default_host();
+        let mut host: cpal::Host = cpal::default_host();
+        if let Ok(host_id) = std::env::var("AUDIO_HOST")
+            && host_id.to_lowercase() == "jack"
+        {
+            host = cpal::host_from_id(HostId::Jack).expect("Failed to use Jack as audio host");
+        }
         let device = host
             .default_output_device()
             .expect("Unable to get default audio device");
         let config = device
             .default_output_config()
             .expect("Unable to get default audio config");
+
+        println!("Audio Host: {}", host.id());
+        println!(
+            "Audio config: Buffer size {:?}, Channels {:?}, Sample Rate {:?}",
+            config.config().buffer_size,
+            config.config().channels,
+            config.config().sample_rate
+        );
 
         let stream = AudioStream::new(host, device, config);
         let mixer = AudioMixer::new(stream.sample_rate());

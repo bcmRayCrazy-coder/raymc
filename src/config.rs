@@ -4,7 +4,8 @@ use std::{env, fs};
 static APP_PATH_NAME: &str = "raymc";
 
 pub fn get_app_dir() -> (PathBuf, bool) {
-    let app_dir;
+    let mut app_dir = PathBuf::new();
+
     #[cfg(target_os = "windows")]
     {
         if let Ok(path) = env::var("APPDATA") {
@@ -25,7 +26,7 @@ pub fn get_app_dir() -> (PathBuf, bool) {
                 app_dir = PathBuf::from(path).join(APP_PATH_NAME);
             }
         } else if let Ok(path) = env::var("HOME") {
-            app_dir = PathBuf::from(path).join(".config").join(APP_PATH_NAME);
+            app_dir = PathBuf::from(path).join(APP_PATH_NAME);
         } else {
             app_dir = PathBuf::from(
                 env::current_dir()

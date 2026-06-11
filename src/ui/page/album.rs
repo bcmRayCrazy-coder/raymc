@@ -67,7 +67,7 @@ impl<'a> AlbumPage<'a> {
 
     fn album_dir(&self) -> PathBuf {
         let (album_dir, first_created) = config::get_app_subdir("album");
-        // println!("Page show. Album dir {:?}", album_dir);
+        println!("Page show. Album dir {:?}", album_dir);
 
         if first_created {
             println!("Write to {:?}", album_dir.join("PUT_SONGS_HERE.txt"));
