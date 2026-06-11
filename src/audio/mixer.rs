@@ -1,15 +1,17 @@
+use std::collections::HashMap;
+
 use crate::audio::track::{AudioTrack, AudioTrackType};
 
 #[derive(Debug)]
 pub struct AudioMixer {
-    tracks: Vec<AudioTrack>,
+    pub tracks: HashMap<AudioTrackType, Box<AudioTrack>>,
     sample_rate: u32,
 }
 
 impl AudioMixer {
     pub fn new(sample_rate: u32) -> Self {
         Self {
-            tracks: Vec::new(),
+            tracks: HashMap::new(),
             sample_rate,
         }
     }
@@ -18,24 +20,13 @@ impl AudioMixer {
         let mut sample0 = 0.0;
         let mut sample1 = 0.0;
 
-        for play in self.tracks.iter_mut() {
-            let sample = play.tick_sample(self.sample_rate);
+        for (_, track) in self.tracks.iter_mut() {
+            let sample = track.tick_sample(self.sample_rate);
             sample0 += sample[0];
             sample1 += sample[1];
         }
 
         [sample0, sample1]
-    }
-
-    pub fn trakcs(&self) -> &Vec<AudioTrack> {
-        &self.tracks
-    }
-
-    pub fn filter_track_mut(&mut self, track_type: AudioTrackType) -> Vec<&mut AudioTrack> {
-        self.tracks
-            .iter_mut()
-            .filter(|t| t.track_type().eq(&track_type))
-            .collect()
     }
 
     pub fn add_track_vec(&mut self, tracks: Vec<AudioTrack>) {
@@ -45,17 +36,7 @@ impl AudioMixer {
     }
 
     pub fn add_track(&mut self, track: AudioTrack) {
-        self.tracks.push(track);
-    }
-
-    // pub fn remove_track(&mut self, id: usize) -> bool {
-    //     if id >= self.tracks.len() {
-    //         return false;
-    //     }
-    //     self.tracks.remove(id);
-    //     true
-    // }
-    pub fn remove_tracks(&mut self, track_type:AudioTrackType) {
-        self.tracks.retain(|track| *track.track_type() != track_type);
+        self.tracks
+            .insert(track.track_type().clone(), Box::new(track));
     }
 }

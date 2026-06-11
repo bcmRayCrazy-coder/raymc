@@ -1,4 +1,4 @@
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub enum AudioTrackType {
     UI(&'static str),
     PLAYER,
@@ -46,8 +46,8 @@ impl AudioTrack {
         return sample;
     }
 
-    pub fn track_type(&self) -> &AudioTrackType {
-        &self.track_type
+    pub fn track_type(&self) -> AudioTrackType {
+        self.track_type.clone()
     }
 
     pub fn sample_rate(&self) -> u32 {

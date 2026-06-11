@@ -12,6 +12,7 @@ use crate::{
 
 #[derive(Debug, Clone)]
 pub enum AppAudioError {
+    TrackNotFound,
     MutexLocked,
 }
 
@@ -41,23 +42,27 @@ impl App {
         });
     }
 
-    pub fn replay_track(&mut self, track_type: AudioTrackType) -> Result<(), AppAudioError> {
+    pub fn replay_track(&mut self, track_type: &AudioTrackType) -> Result<(), AppAudioError> {
         let mut mixer = self
             .audio_manager
             .mixer
             .lock()
             .map_err(|_| AppAudioError::MutexLocked)?;
-        for track in mixer.filter_track_mut(track_type).iter_mut() {
-            track.replay();
+
+        match mixer.tracks.get_mut(track_type) {
+            Some(track) => {
+                track.replay();
+                Ok(())
+            }
+            None => Err(AppAudioError::TrackNotFound),
         }
-        Ok(())
     }
 
     pub fn update_audio(&mut self, message: AudioMessage) -> Task<Message> {
         match message {
             AudioMessage::PlayUi(name) => {
                 let _ = self
-                    .replay_track(AudioTrackType::UI(name))
+                    .replay_track(&AudioTrackType::UI(name))
                     .inspect_err(|err| eprintln!("Unable to play UI Audio! {:?}", err));
                 Task::none()
             }
@@ -65,7 +70,6 @@ impl App {
                 let mixer = self.audio_manager.mixer.lock();
                 match mixer {
                     Ok(mut mixer) => {
-                        mixer.remove_tracks(AudioTrackType::PLAYER);
                         if let Some(current) = self.player_manager.current {
                             let file = &self.player_manager.playlist[current];
                             mixer.add_track(
@@ -75,6 +79,8 @@ impl App {
                                 )
                                 .expect("Audio load failed"),
                             );
+                        } else {
+                            mixer.tracks.remove(&AudioTrackType::PLAYER);
                         }
                         Task::none()
                     }
@@ -87,7 +93,7 @@ impl App {
                 let mixer = self.audio_manager.mixer.lock();
                 match mixer {
                     Ok(mut mixer) => {
-                        for track in mixer.filter_track_mut(AudioTrackType::PLAYER).iter_mut() {
+                        if let Some(track) = mixer.tracks.get_mut(&AudioTrackType::PLAYER) {
                             if track.is_end() {
                                 track.replay();
                             } else {
@@ -105,7 +111,7 @@ impl App {
                 let mixer = self.audio_manager.mixer.lock();
                 match mixer {
                     Ok(mut mixer) => {
-                        for track in mixer.filter_track_mut(AudioTrackType::PLAYER).iter_mut() {
+                        if let Some(track) = mixer.tracks.get_mut(&AudioTrackType::PLAYER) {
                             track.set_playing(false);
                         }
                         Task::none()
