@@ -83,47 +83,52 @@ impl App {
     }
 
     pub fn subscription(&self) -> Subscription<Message> {
-        event::listen_with(|event, _status, window_id| {
-            if let Event::Window(window_event) = &event {
-                match window_event {
-                    window::Event::Opened {
-                        position: _,
-                        size: _,
-                    } => return Some(Message::OnWindowOpen(window_id)),
-                    window::Event::Resized(size) => return Some(Message::OnWindowResize(*size)),
-                    _ => {}
+        Subscription::batch([
+            self.subscription_audio(),
+            event::listen_with(|event, _status, window_id| {
+                if let Event::Window(window_event) = &event {
+                    match window_event {
+                        window::Event::Opened {
+                            position: _,
+                            size: _,
+                        } => return Some(Message::OnWindowOpen(window_id)),
+                        window::Event::Resized(size) => {
+                            return Some(Message::OnWindowResize(*size));
+                        }
+                        _ => {}
+                    }
                 }
-            }
 
-            if let Event::Keyboard(keyboard::Event::KeyReleased {
-                key,
-                modifiers: _modifiers,
-                ..
-            }) = &event
-            {
-                match key {
-                    key::Key::Character(c) if c == "1" => {
-                        return Some(Message::QuickKeyAction(QuickKey::KEY0));
+                if let Event::Keyboard(keyboard::Event::KeyReleased {
+                    key,
+                    modifiers: _modifiers,
+                    ..
+                }) = &event
+                {
+                    match key {
+                        key::Key::Character(c) if c == "1" => {
+                            return Some(Message::QuickKeyAction(QuickKey::KEY0));
+                        }
+                        key::Key::Character(c) if c == "2" => {
+                            return Some(Message::QuickKeyAction(QuickKey::KEY1));
+                        }
+                        key::Key::Character(c) if c == "3" => {
+                            return Some(Message::QuickKeyAction(QuickKey::KEY2));
+                        }
+                        key::Key::Character(c) if c == "4" => {
+                            return Some(Message::QuickKeyAction(QuickKey::KEYL));
+                        }
+                        key::Key::Character(c) if c == "5" => {
+                            return Some(Message::QuickKeyAction(QuickKey::KEYM));
+                        }
+                        key::Key::Character(c) if c == "6" => {
+                            return Some(Message::QuickKeyAction(QuickKey::KEYR));
+                        }
+                        _ => {}
                     }
-                    key::Key::Character(c) if c == "2" => {
-                        return Some(Message::QuickKeyAction(QuickKey::KEY1));
-                    }
-                    key::Key::Character(c) if c == "3" => {
-                        return Some(Message::QuickKeyAction(QuickKey::KEY2));
-                    }
-                    key::Key::Character(c) if c == "4" => {
-                        return Some(Message::QuickKeyAction(QuickKey::KEYL));
-                    }
-                    key::Key::Character(c) if c == "5" => {
-                        return Some(Message::QuickKeyAction(QuickKey::KEYM));
-                    }
-                    key::Key::Character(c) if c == "6" => {
-                        return Some(Message::QuickKeyAction(QuickKey::KEYR));
-                    }
-                    _ => {}
                 }
-            }
-            None
-        })
+                None
+            }),
+        ])
     }
 }

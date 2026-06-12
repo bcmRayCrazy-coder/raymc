@@ -32,18 +32,18 @@ impl AudioTrack {
         }
     }
 
-    pub fn tick_sample(&mut self, target_sample_rate: u32) -> [f32; 2] {
+    pub fn tick_sample(&mut self, target_sample_rate: u32) -> ([f32; 2], bool) {
         if !self.is_playing() {
-            return [0.0; 2];
+            return ([0.0; 2], false);
         }
         if self.is_end() {
             self.set_playing(false);
-            return [0.0; 2];
+            return ([0.0; 2], true);
         }
         let pos = self.current_pos.floor() as usize;
         let sample = self.sample[pos].map(|s| s * self.volume);
         self.current_pos += self.sample_rate as f32 / target_sample_rate as f32;
-        return sample;
+        return (sample, false);
     }
 
     pub fn track_type(&self) -> AudioTrackType {

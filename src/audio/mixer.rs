@@ -1,11 +1,17 @@
 use std::collections::HashMap;
 
-use crate::audio::track::{AudioTrack, AudioTrackType};
+use iced::futures::{ channel::mpsc};
+
+use crate::{
+    audio::track::{AudioTrack, AudioTrackType},
+    ui::message::{AudioMessage, Message},
+};
 
 #[derive(Debug)]
 pub struct AudioMixer {
     pub tracks: HashMap<AudioTrackType, Box<AudioTrack>>,
     sample_rate: u32,
+    sender: Option<mpsc::Sender<Message>>,
 }
 
 impl AudioMixer {
@@ -13,6 +19,7 @@ impl AudioMixer {
         Self {
             tracks: HashMap::new(),
             sample_rate,
+            sender: None,
         }
     }
 
@@ -21,9 +28,16 @@ impl AudioMixer {
         let mut sample1 = 0.0;
 
         for (_, track) in self.tracks.iter_mut() {
-            let sample = track.tick_sample(self.sample_rate);
+            let (sample, ending) = track.tick_sample(self.sample_rate);
             sample0 += sample[0];
             sample1 += sample[1];
+            if ending
+                && let Some(sender) = self.sender.as_mut()
+                && let Err(_) =
+                    sender.try_send(Message::Audio(AudioMessage::TrackEnd(track.track_type())))
+            {
+                eprintln!("Ubable to send audio track end message");
+            }
         }
 
         [sample0, sample1]
@@ -38,5 +52,9 @@ impl AudioMixer {
     pub fn add_track(&mut self, track: AudioTrack) {
         self.tracks
             .insert(track.track_type().clone(), Box::new(track));
+    }
+
+    pub fn sender(&mut self, sender: mpsc::Sender<Message>) {
+        self.sender = Some(sender);
     }
 }

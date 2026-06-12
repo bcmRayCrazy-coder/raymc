@@ -1,9 +1,10 @@
 use std::path::PathBuf;
 
-use iced::{Size, window};
+use iced::{Size, futures::channel::mpsc, window};
 use iced_anim::Event;
 
 use crate::{
+    audio::track::AudioTrackType,
     player::album::AlbumName,
     ui::{
         app::{QuickKey, ViewPageName},
@@ -41,6 +42,10 @@ pub enum Message {
 
 #[derive(Debug, Clone)]
 pub enum AudioMessage {
+    AudioMpscReady(mpsc::Sender<Message>),
+
+    TrackEnd(AudioTrackType),
+
     PlayUi(&'static str),
     UpdatePlayerSong,
     PlayerPlay,
@@ -52,6 +57,8 @@ pub enum PlayerMessage {
     LoopNext,
     ListNext,
     ListPrev,
+
+    PlayEnd,
 
     InsertJumpNext(PathBuf),
 }

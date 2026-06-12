@@ -1,12 +1,16 @@
 use std::time::Duration;
 
-use iced::Task;
+use iced::{
+    Subscription, Task,
+    futures::{SinkExt, StreamExt, channel::mpsc},
+    stream,
+};
 
 use crate::{
     audio::track::{AudioTrack, AudioTrackType},
     ui::{
         app::App,
-        message::{AudioMessage, Message},
+        message::{AudioMessage, Message, PlayerMessage},
     },
 };
 
@@ -60,6 +64,29 @@ impl App {
 
     pub fn update_audio(&mut self, message: AudioMessage) -> Task<Message> {
         match message {
+            AudioMessage::AudioMpscReady(sender) => {
+                let mixer = self.audio_manager.mixer.clone();
+                Task::future(async move {
+                    loop {
+                        match mixer.lock() {
+                            Ok(mut mixer) => {
+                                mixer.sender(sender);
+                                break;
+                            }
+                            Err(_) => {}
+                        };
+
+                        tokio::time::sleep(Duration::from_millis(1)).await;
+                        println!("Unlock failed retry after 1ms");
+                    }
+                    Message::None
+                })
+            }
+            AudioMessage::TrackEnd(track_type) => match track_type {
+                AudioTrackType::PLAYER => Task::done(Message::Player(PlayerMessage::PlayEnd)),
+                _ => Task::none(),
+            },
+
             AudioMessage::PlayUi(name) => {
                 let _ = self
                     .replay_track(&AudioTrackType::UI(name))
@@ -123,30 +150,6 @@ impl App {
                         )
                     }
                 }
-
-                // match mixer {
-                //     Ok(mut mixer) => Task::perform(
-                //         async move {
-                //             if let Some(current) = current {
-                //                 let file = &self.player_manager.playlist[current];
-                //                 println!("Play file {:?}", file);
-                //                 mixer.add_track(
-                //                     AudioTrack::from_disk(
-                //                         &file.to_str().expect("Audio load failed"),
-                //                         AudioTrackType::PLAYER,
-                //                     )
-                //                     .expect("Audio load failed"),
-                //                 );
-                //             } else {
-                //                 mixer.tracks.remove(&AudioTrackType::PLAYER);
-                //             }
-                //         },
-                //         |_| Message::Audio(AudioMessage::PlayerPlay),
-                //     ),
-                //     Err(_) => Task::perform(tokio::time::sleep(Duration::from_millis(1)), |_| {
-                //         Message::Audio(AudioMessage::UpdatePlayerSong)
-                //     }),
-                // }
             }
             AudioMessage::PlayerPlay => {
                 let mixer = self.audio_manager.mixer.lock();
@@ -181,5 +184,27 @@ impl App {
                 }
             }
         }
+    }
+
+    pub fn subscription_audio(&self) -> Subscription<Message> {
+        Subscription::run(|| {
+            stream::channel(127, async |mut output| {
+                println!("Subscribe audio");
+                // output.send(Message::None).await;
+                let (sender, mut reveiver) = mpsc::channel(127);
+                output
+                    .send(Message::Audio(AudioMessage::AudioMpscReady(sender)))
+                    .await
+                    .expect("Unable to open mpsc channel");
+
+                loop {
+                    if let Some(input) = reveiver.next().await
+                        && let Err(err) = output.send(input).await
+                    {
+                        eprintln!("Failed to send message from audio: {:?}", err);
+                    }
+                }
+            })
+        })
     }
 }

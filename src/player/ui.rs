@@ -35,6 +35,7 @@ impl App {
                 self.player_manager.current = Some(pos);
                 Task::done(Message::Audio(UpdatePlayerSong))
             }
+            PlayerMessage::PlayEnd => Task::done(Message::Player(PlayerMessage::LoopNext)),
         }
     }
 }
