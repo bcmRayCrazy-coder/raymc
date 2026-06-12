@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 
-use iced::futures::{ channel::mpsc};
+use iced::futures::channel::mpsc;
 
 use crate::{
     audio::track::{AudioTrack, AudioTrackType},

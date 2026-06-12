@@ -10,7 +10,7 @@ use crate::{
     audio::track::{AudioTrack, AudioTrackType},
     ui::{
         app::App,
-        message::{AudioMessage, Message, PlayerMessage},
+        message::{AudioMessage, Message, PlayerMessage, StateMessage},
     },
 };
 
@@ -158,14 +158,25 @@ impl App {
                         if let Some(track) = mixer.tracks.get_mut(&AudioTrackType::PLAYER) {
                             if track.is_end() {
                                 track.replay();
-                            } else {
-                                track.set_playing(true)
+                            }
+                            track.set_playing(true);
+                            return Task::done(Message::State(StateMessage::OnPlayStateChanged(
+                                true,
+                            )));
+                        } else {
+                            if self.player_manager.current.is_some() {
+                                return Task::batch([
+                                    Task::done(Message::Audio(AudioMessage::UpdatePlayerSong)),
+                                    Task::done(Message::State(StateMessage::OnPlayStateChanged(
+                                        true,
+                                    ))),
+                                ]);
                             }
                         }
                         Task::none()
                     }
                     Err(_) => Task::perform(tokio::time::sleep(Duration::from_millis(1)), |_| {
-                        Message::Audio(AudioMessage::UpdatePlayerSong)
+                        Message::Audio(AudioMessage::PlayerPlay)
                     }),
                 }
             }
@@ -176,10 +187,10 @@ impl App {
                         if let Some(track) = mixer.tracks.get_mut(&AudioTrackType::PLAYER) {
                             track.set_playing(false);
                         }
-                        Task::none()
+                        Task::done(Message::State(StateMessage::OnPlayStateChanged(false)))
                     }
                     Err(_) => Task::perform(tokio::time::sleep(Duration::from_millis(1)), |_| {
-                        Message::Audio(AudioMessage::UpdatePlayerSong)
+                        Message::Audio(AudioMessage::PlayerPause)
                     }),
                 }
             }
@@ -189,7 +200,6 @@ impl App {
     pub fn subscription_audio(&self) -> Subscription<Message> {
         Subscription::run(|| {
             stream::channel(127, async |mut output| {
-                println!("Subscribe audio");
                 // output.send(Message::None).await;
                 let (sender, mut reveiver) = mpsc::channel(127);
                 output

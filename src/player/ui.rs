@@ -4,10 +4,7 @@ use crate::{
     player::playlist::PlaylistTrait,
     ui::{
         app::App,
-        message::{
-            AudioMessage::{self, UpdatePlayerSong},
-            Message, PlayerMessage,
-        },
+        message::{AudioMessage::UpdatePlayerSong, Message, PlayerMessage, StateMessage},
     },
 };
 
@@ -16,15 +13,30 @@ impl App {
         match message {
             PlayerMessage::LoopNext => {
                 self.player_manager.loop_next();
-                Task::done(Message::Audio(AudioMessage::UpdatePlayerSong))
+                Task::batch([
+                    Task::done(Message::State(StateMessage::OnPlayStateChanged(
+                        self.player_manager.is_playing(),
+                    ))),
+                    Task::done(Message::Audio(UpdatePlayerSong)),
+                ])
             }
             PlayerMessage::ListNext => {
                 self.player_manager.list_next();
-                Task::done(Message::Audio(AudioMessage::UpdatePlayerSong))
+                Task::batch([
+                    Task::done(Message::State(StateMessage::OnPlayStateChanged(
+                        self.player_manager.is_playing(),
+                    ))),
+                    Task::done(Message::Audio(UpdatePlayerSong)),
+                ])
             }
             PlayerMessage::ListPrev => {
                 self.player_manager.list_prev();
-                Task::done(Message::Audio(AudioMessage::UpdatePlayerSong))
+                Task::batch([
+                    Task::done(Message::State(StateMessage::OnPlayStateChanged(
+                        self.player_manager.is_playing(),
+                    ))),
+                    Task::done(Message::Audio(UpdatePlayerSong)),
+                ])
             }
 
             PlayerMessage::InsertJumpNext(new) => {
@@ -33,9 +45,17 @@ impl App {
                     .playlist
                     .insert_next(self.player_manager.current, vec![new]);
                 self.player_manager.current = Some(pos);
-                Task::done(Message::Audio(UpdatePlayerSong))
+                Task::batch([
+                    Task::done(Message::State(StateMessage::OnPlayStateChanged(
+                        self.player_manager.is_playing(),
+                    ))),
+                    Task::done(Message::Audio(UpdatePlayerSong)),
+                ])
             }
-            PlayerMessage::PlayEnd => Task::done(Message::Player(PlayerMessage::LoopNext)),
+            PlayerMessage::PlayEnd => Task::batch([
+                Task::done(Message::State(StateMessage::OnPlayStateChanged(false))),
+                Task::done(Message::Player(PlayerMessage::LoopNext)),
+            ]),
         }
     }
 }

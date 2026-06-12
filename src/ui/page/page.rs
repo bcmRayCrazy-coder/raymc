@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 
-use iced::{Element, Length::Fill, Size, Task, widget, window};
+use iced::{Element, Length::Fill, Task, widget, window};
 
 use crate::ui::{app::ViewPageName, message::Message};
 
@@ -14,7 +14,6 @@ pub struct ViewPageManager {
     pages: HashMap<ViewPageName, Box<dyn ViewPage>>,
     current_page: ViewPageName,
     history_page: Vec<ViewPageName>,
-    page_size: Size,
 
     window_id: Option<window::Id>,
     window_closed: bool,
@@ -26,7 +25,6 @@ impl ViewPageManager {
             pages: HashMap::new(),
             current_page: ViewPageName::Launch,
             history_page: Vec::new(),
-            page_size: Size::new(1024.0, 768.0),
 
             window_id: None,
             window_closed: false,
@@ -49,7 +47,6 @@ impl ViewPageManager {
         };
 
         Task::batch([manager_task, page_task])
-        // manager_task.chain(page_task)
     }
 
     pub fn view(&self) -> Element<'_, Message> {
@@ -96,7 +93,7 @@ impl ViewPageManager {
             }
 
             Message::OnPageShow => {
-                return (false, Task::done(Message::OnWindowResize(self.page_size)));
+                return (false, Task::none());
             }
 
             Message::OnWindowOpen(window_id) => {
@@ -108,10 +105,7 @@ impl ViewPageManager {
 
                 (false, Task::none())
             }
-            Message::OnWindowResize(page_size) => {
-                self.page_size = page_size.clone();
-                return (false, Task::none());
-            }
+
             _ => (false, Task::none()),
         }
     }

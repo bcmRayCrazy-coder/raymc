@@ -8,7 +8,7 @@ use crate::{
     player::album::{AlbumName, get_album_list},
     ui::{
         app::{QuickKey, ViewPageName},
-        message::{AlbumMessage, AudioMessage, Message, PlayerMessage},
+        message::{AlbumMessage, AudioMessage, Message, PlayerMessage, StateMessage},
         page::page::ViewPage,
         widget::anim_list::AnimList,
     },
@@ -161,27 +161,21 @@ impl ViewPage for AlbumPage<'_> {
                 Task::none()
             }
 
-            Message::Album(AlbumMessage::ConfirmSelect) => {
-                match self.album_state {
-                    AlbumState::Album => {
-                        self.toggle_state(&AlbumState::Song(self.current_album_name()))
-                    }
-
-                    AlbumState::Song(_) => {
-                        Task::batch([
-                            Task::done(Message::Player(PlayerMessage::InsertJumpNext(
-                                self.current_album_name().get_dir(self.album_dir()).join(
-                                    self.widget_anim_song_list.list
-                                        [self.widget_anim_song_list.current()]
-                                    .clone(),
-                                ),
-                            ))),
-                            // TODO: Jump to player
-                            Task::none(),
-                        ])
-                    }
+            Message::Album(AlbumMessage::ConfirmSelect) => match self.album_state {
+                AlbumState::Album => {
+                    self.toggle_state(&AlbumState::Song(self.current_album_name()))
                 }
-            }
+
+                AlbumState::Song(_) => Task::batch([
+                    Task::done(Message::Player(PlayerMessage::InsertJumpNext(
+                        self.current_album_name().get_dir(self.album_dir()).join(
+                            self.widget_anim_song_list.list[self.widget_anim_song_list.current()]
+                                .clone(),
+                        ),
+                    ))),
+                    Task::done(Message::ActionPageJump(ViewPageName::Player)),
+                ]),
+            },
 
             Message::Album(AlbumMessage::LoadAlbums(refresh)) => {
                 self.album_list = vec!["Single".to_owned()];
@@ -219,10 +213,14 @@ impl ViewPage for AlbumPage<'_> {
                 Task::none()
             }
 
-            Message::OnPageShow => Task::done(Message::Album(AlbumMessage::LoadAlbums(true))),
-            Message::OnWindowResize(size) => {
-                self.page_width = size.width;
-                self.page_height = size.height;
+            Message::OnPageShow => Task::batch([
+                Task::done(Message::State(StateMessage::Fetch)),
+                Task::done(Message::Album(AlbumMessage::LoadAlbums(true))),
+            ]),
+
+            Message::UpdatePageState(state) => {
+                self.page_width = state.page_size.width;
+                self.page_height = state.page_size.height;
 
                 Task::none()
             }

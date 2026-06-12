@@ -10,7 +10,7 @@ use crate::{
     cache,
     ui::{
         app::{QuickKey, ViewPageName},
-        message::{AudioMessage, MenuMessage, Message},
+        message::{AudioMessage, MenuMessage, Message, StateMessage},
         page::page::ViewPage,
         widget::anim_list::AnimList,
     },
@@ -161,12 +161,12 @@ impl ViewPage for MenuPage<'_> {
             Message::OnPageShow => {
                 self.anim_page_transition
                     .update(iced_anim::Event::Target(1.0));
-                Task::none()
+                Task::done(Message::State(StateMessage::Fetch))
             }
 
-            Message::OnWindowResize(size) => {
-                self.page_width = size.width;
-                self.page_height = size.height;
+            Message::UpdatePageState(state) => {
+                self.page_width = state.page_size.width;
+                self.page_height = state.page_size.height;
 
                 Task::none()
             }

@@ -21,6 +21,9 @@ impl PlayerManager {
     pub fn current(&self) -> Option<usize> {
         self.current.clone()
     }
+    pub fn is_playing(&self) -> bool {
+        self.current.is_some()
+    }
 }
 
 impl Default for PlayerManager {

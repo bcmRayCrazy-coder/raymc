@@ -32,13 +32,10 @@ impl LaunchPage {
 
 impl ViewPage for LaunchPage {
     fn view(&self) -> Element<'_, Message> {
-        let background = widget::image(
-            // "assets/bg.png"
-            cache::get_cached_image_handle("bg.png").unwrap(),
-        )
-        .width(Fill)
-        .height(Fill)
-        .content_fit(iced::ContentFit::Cover);
+        let background = widget::image(cache::get_cached_image_handle("bg.png").unwrap())
+            .width(Fill)
+            .height(Fill)
+            .content_fit(iced::ContentFit::Cover);
 
         widget::stack![
             self.widget_preload(),

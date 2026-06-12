@@ -8,11 +8,12 @@ use crate::{
     audio::manager::AudioManager,
     player::manager::PlayerManager,
     ui::{
-        message::Message,
+        message::{Message, StateMessage},
         page::{
             album::AlbumPage, counter::CounterPage, launch::LaunchPage, menu::MenuPage,
-            options::OptionsPage, page::ViewPageManager,
+            options::OptionsPage, page::ViewPageManager, player::PlayerPage,
         },
+        state::AppState,
     },
 };
 
@@ -32,6 +33,7 @@ pub enum ViewPageName {
     Menu,
     Options,
     Album,
+    Player,
 
     // For Test Purpose
     Counter,
@@ -41,6 +43,8 @@ pub struct App {
     pub view_page_manager: ViewPageManager,
     pub audio_manager: AudioManager,
     pub player_manager: PlayerManager,
+
+    pub state: AppState,
 }
 
 impl App {
@@ -49,6 +53,8 @@ impl App {
             view_page_manager: ViewPageManager::new(),
             audio_manager: AudioManager::default(),
             player_manager: PlayerManager::default(),
+
+            state: AppState::default(),
         }
     }
 
@@ -60,6 +66,7 @@ impl App {
         app.view_page_manager.register(MenuPage::new());
         app.view_page_manager.register(OptionsPage::new());
         app.view_page_manager.register(AlbumPage::new());
+        app.view_page_manager.register(PlayerPage::new());
 
         Self::boot_audio(&mut app);
 
@@ -67,13 +74,11 @@ impl App {
     }
 
     pub fn update(&mut self, message: Message) -> Task<Message> {
-        // if let Message::Audio(audio_message) = message {
-        //     return self.update_audio(audio_message);
-        // }
-        // self.view_page_manager.update(message)
         match message {
             Message::Audio(audio_message) => self.update_audio(audio_message),
             Message::Player(player_message) => self.update_player(player_message),
+            Message::State(state_message) => self.update_state(state_message),
+
             other => self.view_page_manager.update(other),
         }
     }
@@ -93,7 +98,7 @@ impl App {
                             size: _,
                         } => return Some(Message::OnWindowOpen(window_id)),
                         window::Event::Resized(size) => {
-                            return Some(Message::OnWindowResize(*size));
+                            return Some(Message::State(StateMessage::OnWindowResize(*size)));
                         }
                         _ => {}
                     }

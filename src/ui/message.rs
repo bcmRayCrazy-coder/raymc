@@ -8,6 +8,7 @@ use crate::{
     player::album::AlbumName,
     ui::{
         app::{QuickKey, ViewPageName},
+        state::AppState,
         widget::anim_list::AnimListEvent,
     },
 };
@@ -22,6 +23,10 @@ pub enum Message {
     // Player
     Player(PlayerMessage),
 
+    // State
+    State(StateMessage),
+    UpdatePageState(Box<AppState>),
+
     // Page
     OnPageShow,
 
@@ -31,11 +36,11 @@ pub enum Message {
 
     // Window
     OnWindowOpen(window::Id),
-    OnWindowResize(Size),
 
     Counter(CounterMessage),
     Menu(MenuMessage),
     Album(AlbumMessage),
+    PlayerPage(PlayerPageMessage),
 
     None,
 }
@@ -64,6 +69,14 @@ pub enum PlayerMessage {
 }
 
 #[derive(Debug, Clone)]
+pub enum StateMessage {
+    Fetch,
+
+    OnWindowResize(Size),
+    OnPlayStateChanged(bool),
+}
+
+#[derive(Debug, Clone)]
 pub enum MenuMessage {
     UpdateIconScale(Event<f32>),
     UpdateAnimPageTransition(Event<f32>),
@@ -81,6 +94,11 @@ pub enum AlbumMessage {
     /* bool - refresh after loaded */
     LoadAlbums(bool),
     LoadSongs(AlbumName),
+}
+
+#[derive(Debug, Clone)]
+pub enum PlayerPageMessage {
+    TogglePlay,
 }
 
 #[derive(Debug, Clone)]
