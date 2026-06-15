@@ -36,9 +36,7 @@ impl AudioStream {
         D: FnMut(&mut [T], &OutputCallbackInfo) + Send + 'static,
     {
         let config = self.config.config();
-        // config.buffer_size = cpal::BufferSize::Fixed(1024);
         let stream = self.device.build_output_stream(
-            // &self.config.config(),
             &config,
             data_callback,
             |err: cpal::StreamError| eprintln!("Error building output stream {}", err),
@@ -49,7 +47,7 @@ impl AudioStream {
                 self.stream = Some(s);
                 Ok(())
             }
-            Err(e) => panic!("{:?}", e), // Err(e) => Err(AudioError::BuildStreamError(e)),
+            Err(e) => Err(AudioError::BuildStreamError(e)),
         }
     }
 

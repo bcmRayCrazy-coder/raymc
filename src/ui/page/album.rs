@@ -227,7 +227,9 @@ impl ViewPage for AlbumPage<'_> {
 
             Message::QuickKeyAction(key) => match key {
                 QuickKey::KEY0 => match self.album_state {
-                    AlbumState::Album => self.jump_page(Message::ActionPageBack),
+                    AlbumState::Album => {
+                        self.jump_page(Message::ActionPageJump(ViewPageName::Menu))
+                    }
                     AlbumState::Song(_) => self.toggle_state(&AlbumState::Album),
                 },
                 QuickKey::KEY2 => Task::done(Message::Album(AlbumMessage::ConfirmSelect)),

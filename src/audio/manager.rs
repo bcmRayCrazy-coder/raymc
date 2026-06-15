@@ -1,4 +1,7 @@
-use std::sync::{Arc, Mutex};
+use std::{
+    ops::Mul,
+    sync::{Arc, Mutex},
+};
 
 use cpal::{
     FromSample, HostId, OutputCallbackInfo, SizedSample,
@@ -15,6 +18,8 @@ pub struct AudioManager {
     pub mixer: Arc<Mutex<AudioMixer>>,
     pub volume: Arc<Mutex<f32>>,
     is_started: bool,
+
+    frame_skipped: Arc<Mutex<usize>>,
 }
 
 impl AudioManager {
@@ -47,22 +52,35 @@ impl AudioManager {
             let channel_num = stream.channels() as usize;
             let mixer = self.mixer.clone();
             let volume = self.volume.clone();
+            let frame_skipped = self.frame_skipped.clone();
 
             self.is_started = true;
 
             return stream.build_stream(move |output: &mut [T], _: &OutputCallbackInfo| {
-                for frame in output.chunks_mut(channel_num) {
-                    if let Ok(mut mixer) = mixer.lock()
-                        && let Ok(volume) = volume.lock()
-                    {
-                        let volume = volume.clone();
-                        let sample = mixer.tick_sample();
-                        for (channel, output_sample) in frame.iter_mut().enumerate() {
-                            *output_sample = T::from_sample(match channel {
-                                0 => sample[0] * volume,
-                                1 => sample[1] * volume,
-                                _ => 0.0,
-                            })
+                if let Ok(mut frame_skipped) = frame_skipped.lock() {
+                    for frame in output.chunks_mut(channel_num) {
+                        if let Ok(mut mixer) = mixer.lock()
+                            && let Ok(volume) = volume.lock()
+                        {
+                            loop {
+                                if frame_skipped.le(&0) {
+                                    break;
+                                }
+                                mixer.tick_sample();
+                                *frame_skipped -= 1;
+                            }
+
+                            let volume = volume.clone();
+                            let sample = mixer.tick_sample();
+                            for (channel, output_sample) in frame.iter_mut().enumerate() {
+                                *output_sample = T::from_sample(match channel {
+                                    0 => sample[0] * volume,
+                                    1 => sample[1] * volume,
+                                    _ => 0.0,
+                                })
+                            }
+                        } else {
+                            *frame_skipped += 1;
                         }
                     }
                 }
@@ -107,6 +125,7 @@ impl Default for AudioManager {
             mixer: Arc::new(Mutex::new(mixer)),
             volume: Arc::new(Mutex::new(1.0)),
             is_started: false,
+            frame_skipped: Arc::new(Mutex::new(0)),
         }
     }
 }
