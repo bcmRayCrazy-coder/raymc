@@ -5,3 +5,27 @@
 ![License GNU AGPL 3](https://img.shields.io/badge/License-GNU_AGPL_3-blue)
 
 A **Music Center** Software designed in **Frutiger Aero (Dark / Aurora)** style.
+
+## Key Mappings
+
+### Default Keys
+
+| KEY0 | KEY1 | KEY2 | KEYL | KEYM | KEYR |
+| ---- | ---- | ---- | ---- | ---- | ---- |
+| 1    | 2    | 3    | 4    | 5    | 6    |
+
+### Page Keys
+
+| Page   | KEY0 | KEY1   | KEY2       | KEYL | KEYM | KEYR |
+| ------ | ---- | ------ | ---------- | ---- | ---- | ---- |
+| Menu   | -    | Player | Confirm    | Up   | -    | Down |
+| Album  | Back | Player | Confirm    | Up   | -    | Down |
+| Player | Back | -      | Play/Pause | -    | -    | -    |
+
+## Format Support
+
+- MP3
+- MKV/WebM
+- OGG
+- WAVE
+- FLAC
