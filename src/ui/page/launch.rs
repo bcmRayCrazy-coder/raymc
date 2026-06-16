@@ -61,8 +61,14 @@ impl ViewPage for LaunchPage {
         match message {
             Message::OnPageShow => {
                 println!("Page show");
-                // Task::none()
-                Task::perform(tokio::time::sleep(Duration::from_millis(10)), |_| {
+
+                #[allow(unused)]
+                let sleep_duration = Duration::from_secs(1);
+
+                #[cfg(debug_assertions)]
+                let sleep_duration = Duration::from_millis(10);
+
+                Task::perform(tokio::time::sleep(sleep_duration), |_| {
                     Message::ActionPageJump(ViewPageName::Menu)
                 })
             }

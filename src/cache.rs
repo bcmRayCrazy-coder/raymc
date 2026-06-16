@@ -41,21 +41,30 @@ pub fn get_cached_image_handle_list() -> Vec<image::Handle> {
     cached_asset.image_handle.values().cloned().collect()
 }
 
+const CACHED_IMAGES: [&str; 15] = [
+    "icons/album.png",
+    "icons/options.png",
+    "icons/playlist.png",
+    "icons/quit.png",
+    "icons/play.png",
+    "icons/play_disabled.png",
+    "icons/pause.png",
+    "icons/pause_disabled.png",
+    "icons/key1.png",
+    "icons/key2.png",
+    "icons/key3.png",
+    "icon.png",
+    "bg.png",
+    "menu_icon_bg.png",
+    "user.png",
+];
+
 pub fn load_cached_asset() {
     println!("Load Cached Asset");
 
     let mut cached_asset = CACHED_ASSET.write().unwrap();
 
-    load_cache_image(&mut cached_asset, "icons/album.png");
-    load_cache_image(&mut cached_asset, "icons/options.png");
-    load_cache_image(&mut cached_asset, "icons/playlist.png");
-    load_cache_image(&mut cached_asset, "icons/quit.png");
-    load_cache_image(&mut cached_asset, "icons/play.png");
-    load_cache_image(&mut cached_asset, "icons/play_disabled.png");
-    load_cache_image(&mut cached_asset, "icons/pause.png");
-    load_cache_image(&mut cached_asset, "icons/pause_disabled.png");
-    load_cache_image(&mut cached_asset, "icon.png");
-    load_cache_image(&mut cached_asset, "bg.png");
-    load_cache_image(&mut cached_asset, "menu_icon_bg.png");
-    load_cache_image(&mut cached_asset, "user.png");
+    for image_path in CACHED_IMAGES {
+        load_cache_image(&mut cached_asset, image_path);
+    }
 }
