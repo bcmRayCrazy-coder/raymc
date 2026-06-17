@@ -172,6 +172,7 @@ impl ViewPage for MenuPage<'_> {
             }
 
             Message::QuickKeyAction(key) => match key {
+                QuickKey::KEY1 => self.jump_page(Message::ActionPageJump(ViewPageName::Player)),
                 QuickKey::KEY2 | QuickKey::KEYM => {
                     Task::done(Message::Menu(MenuMessage::ConfirmSelect))
                 }
