@@ -166,15 +166,24 @@ impl ViewPage for AlbumPage<'_> {
                     self.toggle_state(&AlbumState::Song(self.current_album_name()))
                 }
 
-                AlbumState::Song(_) => Task::batch([
-                    Task::done(Message::Player(PlayerMessage::InsertJumpNext(
-                        self.current_album_name().get_dir(self.album_dir()).join(
-                            self.widget_anim_song_list.list[self.widget_anim_song_list.current()]
-                                .clone(),
-                        ),
-                    ))),
-                    Task::done(Message::ActionPageJump(ViewPageName::Player)),
-                ]),
+                AlbumState::Song(_) => {
+                    let current = self.widget_anim_song_list.list
+                        [self.widget_anim_song_list.current()]
+                    .clone();
+                
+                    if current == "Empty" {
+                        return Task::none();
+                    }
+
+                    Task::batch([
+                        Task::done(Message::Player(PlayerMessage::InsertJumpNext(
+                            self.current_album_name()
+                                .get_dir(self.album_dir())
+                                .join(current),
+                        ))),
+                        Task::done(Message::ActionPageJump(ViewPageName::Player)),
+                    ])
+                }
             },
 
             Message::Album(AlbumMessage::LoadAlbums(refresh)) => {
