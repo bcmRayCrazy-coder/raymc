@@ -41,7 +41,7 @@ pub fn get_cached_image_handle_list() -> Vec<image::Handle> {
     cached_asset.image_handle.values().cloned().collect()
 }
 
-const CACHED_IMAGES: [&str; 15] = [
+const CACHED_IMAGES: [&str; 18] = [
     "icons/album.png",
     "icons/options.png",
     "icons/playlist.png",
@@ -53,6 +53,9 @@ const CACHED_IMAGES: [&str; 15] = [
     "icons/key1.png",
     "icons/key2.png",
     "icons/key3.png",
+    "icons/keyl.png",
+    "icons/keym.png",
+    "icons/keyr.png",
     "icon.png",
     "bg.png",
     "menu_icon_bg.png",
@@ -60,7 +63,7 @@ const CACHED_IMAGES: [&str; 15] = [
 ];
 
 pub fn load_cached_asset() {
-    println!("Load Cached Asset");
+    println!("Loading Cached Assets. {} images.", CACHED_IMAGES.len());
 
     let mut cached_asset = CACHED_ASSET.write().unwrap();
 
