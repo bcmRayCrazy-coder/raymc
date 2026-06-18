@@ -1,4 +1,4 @@
-use std::sync::Arc;
+use std::{fmt::Display, sync::Arc};
 
 use iced::{
     Alignment, Color, Element,
@@ -74,10 +74,6 @@ where
                     )
                     .height(Fill),
             )
-            // .style(|_| widget::container::Style {
-            //     border: iced::Border::default().color(iced::Color::WHITE).width(1),
-            //     ..Default::default()
-            // })
             .height(Fill),
         )
         .on_update(move |e| match &on_update {
@@ -140,17 +136,24 @@ where
         self
     }
 
-    pub fn current(&self) -> usize {
+    pub fn current(&self) -> &T {
+        &self.list[self.current]
+    }
+
+    pub fn current_index(&self) -> usize {
         self.current
     }
 }
 
-impl Default for AnimList<'_, String> {
+impl<T> Default for AnimList<'_, T>
+where
+    T: Display,
+{
     fn default() -> Self {
         // let style_default = (30.0, Color::from_rgba(0.85, 0.85, 0.85, 0.68));
         // let style_highlight = (50.0, Color::from_rgba(0.9, 0.9, 0.9, 0.98));
         Self {
-            list: vec!["".to_owned()],
+            list: Vec::new(),
             current: 0,
             spacing: 22.0,
             disabled: false,
@@ -158,7 +161,7 @@ impl Default for AnimList<'_, String> {
             anim_padding_y: Animated::transition(0.0, Easing::EASE_IN_OUT.quick()),
 
             display: Arc::new(|item, transition_val| {
-                widget::text(item)
+                widget::text(format!("{}", item))
                     .height(transition_val * 20.0 + 30.0)
                     .size(transition_val * 20.0 + 30.0)
                     .color(Color::from_rgba(
@@ -172,7 +175,6 @@ impl Default for AnimList<'_, String> {
             }),
             on_update: None,
             evulate_y: |i| (22.0 + 30.0) * i,
-            // evulate_y: |i| (10.0 + 38.7) * i,
         }
     }
 }

@@ -1,4 +1,4 @@
-use std::{fs, path::PathBuf};
+use std::{fmt::Display, fs, path::PathBuf};
 
 use iced::{Element, Length::Fill, Padding, Task, widget};
 use iced_anim::{Animated, Easing, animation::animation};
@@ -20,6 +20,34 @@ pub enum AlbumState {
     Song(AlbumName),
 }
 
+#[derive(Debug, Clone)]
+enum SongListItem {
+    Empty,
+    Song(String),
+}
+
+impl SongListItem {
+    pub fn is_empty(&self) -> bool {
+        match self {
+            Self::Empty => true,
+            Self::Song(_) => false,
+        }
+    }
+}
+
+impl Display for SongListItem {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(
+            f,
+            "{}",
+            match self {
+                SongListItem::Empty => "Empty",
+                Self::Song(name) => name,
+            }
+        )
+    }
+}
+
 pub struct AlbumPage<'a> {
     album_list: Vec<String>,
     song_list: Option<Vec<String>>,
@@ -29,7 +57,7 @@ pub struct AlbumPage<'a> {
     page_height: f32,
 
     widget_anim_album_list: AnimList<'a, String>,
-    widget_anim_song_list: AnimList<'a, String>,
+    widget_anim_song_list: AnimList<'a, SongListItem>,
 
     anim_page_transition: Animated<f32>,
 }
@@ -55,10 +83,10 @@ impl<'a> AlbumPage<'a> {
     }
 
     fn current_album_name(&self) -> AlbumName {
-        if self.widget_anim_album_list.current() == 0 {
+        if self.widget_anim_album_list.current_index() == 0 {
             AlbumName::Single
         } else {
-            AlbumName::Album(self.album_list[self.widget_anim_album_list.current()].clone())
+            AlbumName::Album(self.album_list[self.widget_anim_album_list.current_index()].clone())
         }
     }
 
@@ -167,22 +195,19 @@ impl ViewPage for AlbumPage<'_> {
                 }
 
                 AlbumState::Song(_) => {
-                    let current = self.widget_anim_song_list.list
-                        [self.widget_anim_song_list.current()]
-                    .clone();
-                
-                    if current == "Empty" {
-                        return Task::none();
-                    }
+                    let current = self.widget_anim_song_list.current().clone();
 
-                    Task::batch([
-                        Task::done(Message::Player(PlayerMessage::InsertJumpNext(
-                            self.current_album_name()
-                                .get_dir(self.album_dir())
-                                .join(current),
-                        ))),
-                        Task::done(Message::ActionPageJump(ViewPageName::Player)),
-                    ])
+                    match current {
+                        SongListItem::Empty => Task::none(),
+                        SongListItem::Song(current) => Task::batch([
+                            Task::done(Message::Player(PlayerMessage::InsertJumpNext(
+                                self.current_album_name()
+                                    .get_dir(self.album_dir())
+                                    .join(current),
+                            ))),
+                            Task::done(Message::ActionPageJump(ViewPageName::Player)),
+                        ]),
+                    }
                 }
             },
 
@@ -215,8 +240,11 @@ impl ViewPage for AlbumPage<'_> {
                     self.song_list = None;
                 }
 
-                self.widget_anim_song_list.list =
-                    self.song_list.clone().unwrap_or(vec!["Empty".to_owned()]);
+                self.widget_anim_song_list.list = self
+                    .song_list
+                    .clone()
+                    .map(|i| i.iter().map(|i| SongListItem::Song(i.clone())).collect())
+                    .unwrap_or(vec![SongListItem::Empty]);
                 self.widget_anim_song_list.reset_current();
 
                 Task::none()

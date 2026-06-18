@@ -1,3 +1,5 @@
+use std::fmt::Display;
+
 use iced::{
     Element,
     Length::Fill,
@@ -16,6 +18,29 @@ use crate::{
     },
 };
 
+#[derive(Debug, Clone)]
+enum MenuListItem {
+    Playlist,
+    Album,
+    Options,
+    Quit,
+}
+
+impl Display for MenuListItem {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(
+            f,
+            "{}",
+            match self {
+                MenuListItem::Playlist => "Playlist",
+                MenuListItem::Album => "Album",
+                MenuListItem::Options => "Options",
+                MenuListItem::Quit => "Quit",
+            }
+        )
+    }
+}
+
 pub struct MenuPage<'a> {
     list_icon: Vec<String>,
     current_icon: usize,
@@ -23,7 +48,7 @@ pub struct MenuPage<'a> {
     page_width: f32,
     page_height: f32,
 
-    widget_anim_list: AnimList<'a, String>,
+    widget_anim_list: AnimList<'a, MenuListItem>,
 
     anim_icon_scale: Animated<f32>,
     anim_page_transition: Animated<f32>,
@@ -32,10 +57,10 @@ pub struct MenuPage<'a> {
 impl<'a> MenuPage<'a> {
     pub fn new() -> Self {
         let list = vec![
-            "Playlist".to_owned(),
-            "Album".to_owned(),
-            "Options".to_owned(),
-            "Quit".to_owned(),
+            MenuListItem::Playlist,
+            MenuListItem::Album,
+            MenuListItem::Options,
+            MenuListItem::Quit,
         ];
         Self {
             list_icon: vec![
@@ -131,9 +156,11 @@ impl ViewPage for MenuPage<'_> {
     fn update(&mut self, message: Message) -> iced::Task<Message> {
         match message {
             Message::Menu(MenuMessage::ConfirmSelect) => match self.widget_anim_list.current() {
-                1 => self.jump_page(Message::ActionPageJump(ViewPageName::Album)),
-                2 => self.jump_page(Message::ActionPageJump(ViewPageName::Options)),
-                3 => Task::done(Message::ActionQuit),
+                MenuListItem::Album => self.jump_page(Message::ActionPageJump(ViewPageName::Album)),
+                MenuListItem::Options => {
+                    self.jump_page(Message::ActionPageJump(ViewPageName::Options))
+                }
+                MenuListItem::Quit => Task::done(Message::ActionQuit),
                 _ => Task::none(),
             },
 
@@ -152,7 +179,7 @@ impl ViewPage for MenuPage<'_> {
 
                 if !self.anim_icon_scale.is_animating() {
                     self.anim_icon_scale.update(iced_anim::Event::Target(1.0));
-                    self.current_icon = self.widget_anim_list.current();
+                    self.current_icon = self.widget_anim_list.current_index();
                 }
 
                 Task::none()
