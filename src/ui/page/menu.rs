@@ -1,4 +1,4 @@
-use std::fmt::Display;
+use std::{collections::HashMap, fmt::Display};
 
 use iced::{
     Element,
@@ -225,5 +225,17 @@ impl ViewPage for MenuPage<'_> {
 
     fn name(&self) -> ViewPageName {
         ViewPageName::Menu
+    }
+
+    fn keys_hint(&self) -> HashMap<QuickKey, String> {
+        let mut map = HashMap::new();
+
+        map.insert(QuickKey::KEY0, "Back".to_owned());
+        map.insert(QuickKey::KEY1, "Player".to_owned());
+        map.insert(QuickKey::KEY2, "Confirm".to_owned());
+        map.insert(QuickKey::KEYL, "Next".to_owned());
+        map.insert(QuickKey::KEYR, "Previous".to_owned());
+
+        map
     }
 }

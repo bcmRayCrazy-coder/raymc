@@ -1,4 +1,4 @@
-use std::{fmt::Display, fs, path::PathBuf};
+use std::{collections::HashMap, fmt::Display, fs, path::PathBuf};
 
 use iced::{Element, Length::Fill, Padding, Task, widget};
 use iced_anim::{Animated, Easing, animation::animation};
@@ -318,5 +318,17 @@ impl ViewPage for AlbumPage<'_> {
 
     fn name(&self) -> ViewPageName {
         ViewPageName::Album
+    }
+
+    fn keys_hint(&self) -> HashMap<QuickKey, String> {
+        let mut map = HashMap::new();
+
+        map.insert(QuickKey::KEY0, "Back".to_owned());
+        map.insert(QuickKey::KEY1, "Player".to_owned());
+        map.insert(QuickKey::KEY2, "Confirm".to_owned());
+        map.insert(QuickKey::KEYL, "Next".to_owned());
+        map.insert(QuickKey::KEYR, "Previous".to_owned());
+
+        map
     }
 }

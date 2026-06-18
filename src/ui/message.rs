@@ -33,6 +33,7 @@ pub enum Message {
     ActionPageJump(ViewPageName),
     ActionPageBack,
     ActionQuit,
+    ActionUpdateKeysHint,
 
     // Window
     OnWindowOpen(window::Id),

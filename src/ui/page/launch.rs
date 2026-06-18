@@ -1,4 +1,4 @@
-use std::time::Duration;
+use std::{collections::HashMap, time::Duration};
 
 use iced::{
     Element,
@@ -9,7 +9,11 @@ use iced::{
 
 use crate::{
     cache::{self, get_cached_image_handle_list},
-    ui::{app::ViewPageName, message::Message, page::page::ViewPage},
+    ui::{
+        app::{QuickKey, ViewPageName},
+        message::Message,
+        page::page::ViewPage,
+    },
 };
 
 pub struct LaunchPage {}
@@ -78,5 +82,9 @@ impl ViewPage for LaunchPage {
 
     fn name(&self) -> ViewPageName {
         ViewPageName::Launch
+    }
+
+    fn keys_hint(&self) -> HashMap<QuickKey, String> {
+        HashMap::new()
     }
 }

@@ -1,13 +1,18 @@
 use std::collections::HashMap;
 
-use iced::{Element, Length::Fill, Task, widget, window};
+use iced::{Element, Length::Fill, Padding, Task, alignment::Vertical::Bottom, widget, window};
 
-use crate::ui::{app::ViewPageName, message::Message};
+use crate::ui::{
+    app::{QuickKey, ViewPageName},
+    message::Message,
+    widget::keys_hint::KeysHint,
+};
 
 pub trait ViewPage {
     fn view(&self) -> Element<'_, Message>;
     fn update(&mut self, message: Message) -> Task<Message>;
     fn name(&self) -> ViewPageName;
+    fn keys_hint(&self) -> HashMap<QuickKey, String>;
 }
 
 pub struct ViewPageManager {
@@ -17,6 +22,8 @@ pub struct ViewPageManager {
 
     window_id: Option<window::Id>,
     window_closed: bool,
+
+    widget_keys_hint: Box<KeysHint>,
 }
 
 impl ViewPageManager {
@@ -28,6 +35,8 @@ impl ViewPageManager {
 
             window_id: None,
             window_closed: false,
+
+            widget_keys_hint: Box::new(KeysHint::default()),
         }
     }
 
@@ -52,7 +61,7 @@ impl ViewPageManager {
     pub fn view(&self) -> Element<'_, Message> {
         let page = self.pages.get(&self.current_page);
         match page {
-            Some(page) => page.view(),
+            Some(page) => widget::stack![page.view(), self.widget_keys_hint()].into(),
             None => self.fallback_view(),
         }
     }
@@ -91,9 +100,18 @@ impl ViewPageManager {
 
                 (true, task)
             }
+            Message::ActionUpdateKeysHint => {
+                let page = self.pages.get(&self.current_page);
+                if let Some(page) = page {
+                    self.widget_keys_hint.keys = page.keys_hint();
+                } else {
+                    self.widget_keys_hint.keys = HashMap::new();
+                }
+                (true, Task::none())
+            }
 
             Message::OnPageShow => {
-                return (false, Task::none());
+                return (false, Task::done(Message::ActionUpdateKeysHint));
             }
 
             Message::OnWindowOpen(window_id) => {
@@ -108,5 +126,13 @@ impl ViewPageManager {
 
             _ => (false, Task::none()),
         }
+    }
+
+    fn widget_keys_hint(&self) -> Element<'_, Message> {
+        widget::container(self.widget_keys_hint.widget())
+            // .align_y(Bottom)
+            .align_bottom(6)
+            .height(Fill)
+            .into()
     }
 }

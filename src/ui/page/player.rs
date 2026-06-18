@@ -1,3 +1,5 @@
+use std::collections::HashMap;
+
 use iced::{Element, Length::Fill, Task, widget};
 
 use crate::{
@@ -68,7 +70,7 @@ impl ViewPage for PlayerPage {
 
             Message::UpdatePageState(new_state) => {
                 self.state = new_state;
-                Task::none()
+                Task::done(Message::ActionUpdateKeysHint)
             }
 
             Message::QuickKeyAction(key) => match key {
@@ -83,5 +85,19 @@ impl ViewPage for PlayerPage {
 
     fn name(&self) -> ViewPageName {
         ViewPageName::Player
+    }
+
+    fn keys_hint(&self) -> HashMap<QuickKey, String> {
+        let mut map = HashMap::new();
+
+        map.insert(QuickKey::KEY0, "Back".to_owned());
+        map.insert(QuickKey::KEY1, {
+            match self.state.is_playing {
+                true => "Pause".to_owned(),
+                false => "Play".to_owned(),
+            }
+        });
+
+        map
     }
 }

@@ -1,3 +1,5 @@
+use std::collections::HashMap;
+
 use iced::{Length::Fill, Task, widget};
 
 use crate::ui::{
@@ -33,5 +35,13 @@ impl ViewPage for OptionsPage {
 
     fn name(&self) -> crate::ui::app::ViewPageName {
         ViewPageName::Options
+    }
+
+    fn keys_hint(&self) -> std::collections::HashMap<QuickKey, String> {
+        let mut map = HashMap::new();
+
+        map.insert(QuickKey::KEY0, "Back".to_owned());
+
+        map
     }
 }

@@ -1,3 +1,5 @@
+use std::collections::HashMap;
+
 use iced::{Element, Task, widget};
 use iced_anim::{AnimationBuilder, Easing};
 
@@ -115,5 +117,9 @@ impl ViewPage for CounterPage {
 
     fn name(&self) -> ViewPageName {
         ViewPageName::Counter
+    }
+
+    fn keys_hint(&self) -> HashMap<QuickKey, String> {
+        HashMap::new()
     }
 }
