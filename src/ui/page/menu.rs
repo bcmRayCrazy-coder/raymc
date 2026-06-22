@@ -100,8 +100,8 @@ impl<'a> MenuPage<'a> {
                 .opacity(0.6),
             widget::container(
                 widget::image(cache::get_cached_image_handle(&icon_path).unwrap())
-                    .height(size)
-                    .width(size)
+                    .height(size * 0.85)
+                    .width(size * 0.85)
             )
             .center(size * 1.3),
         ]
