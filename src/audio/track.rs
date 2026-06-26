@@ -13,7 +13,7 @@ pub struct AudioTrack {
     sample: Vec<[f32; 2]>,
     sample_rate: u32,
     is_playing: bool,
-    frac:f64,
+    frac: f64,
     pub stop_pos: usize,
     pub current_pos: usize,
     pub volume: f32,
@@ -25,7 +25,7 @@ impl AudioTrack {
             stop_pos: sample.len(),
             current_pos: 0,
             volume: 1.0,
-            frac:0.0,
+            frac: 0.0,
 
             track_type,
             sample,
@@ -42,7 +42,7 @@ impl AudioTrack {
             self.set_playing(false);
             return ([0.0; 2], true);
         }
-        
+
         let next_pos = self.current_pos + 1;
         let next = if next_pos >= self.sample.len() {
             [0.0, 0.0]
