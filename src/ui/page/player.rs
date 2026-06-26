@@ -6,7 +6,7 @@ use crate::{
     cache,
     ui::{
         app::{QuickKey, ViewPageName},
-        message::{AudioMessage, Message, PlayerPageMessage},
+        message::{AudioMessage, Message, PlayerMessage, PlayerPageMessage},
         page::page::ViewPage,
         state::AppState,
     },
@@ -44,18 +44,7 @@ impl ViewPage for PlayerPage {
             .height(Fill)
             .content_fit(iced::ContentFit::Cover);
 
-        widget::stack![
-            background,
-            widget::text(format!(
-                "Current state:\n{}",
-                match self.state.is_playing {
-                    true => "                       Is Playing",
-                    false => "                      Not Playing",
-                }
-            )),
-            self.widget_play_button()
-        ]
-        .into()
+        widget::stack![background, self.widget_play_button()].into()
     }
 
     fn update(&mut self, message: Message) -> iced::Task<Message> {
@@ -76,6 +65,8 @@ impl ViewPage for PlayerPage {
             Message::QuickKeyAction(key) => match key {
                 QuickKey::KEY0 => Task::done(Message::ActionPageBack),
                 QuickKey::KEY1 => Task::done(Message::PlayerPage(PlayerPageMessage::TogglePlay)),
+                QuickKey::KEYL => Task::done(Message::Player(PlayerMessage::ListPrev)),
+                QuickKey::KEYR => Task::done(Message::Player(PlayerMessage::ListNext)),
                 _ => Task::none(),
             },
 
@@ -97,6 +88,8 @@ impl ViewPage for PlayerPage {
                 false => "Play".to_owned(),
             }
         });
+        map.insert(QuickKey::KEYL, "Previous".to_owned());
+        map.insert(QuickKey::KEYR, "Next".to_owned());
 
         map
     }
