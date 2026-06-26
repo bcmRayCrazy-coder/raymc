@@ -27,13 +27,13 @@ impl<'a> IconText<'a> {
         }
     }
 
-    pub fn text_size(mut self, text_size: f32) -> Self {
-        self.text_size = Some(text_size);
+    pub fn text_size<T: Into<f32>>(mut self, text_size: T) -> Self {
+        self.text_size = Some(text_size.into());
         self
     }
 
-    pub fn icon_size(mut self, icon_size: f32) -> Self {
-        self.icon_size = Some(icon_size);
+    pub fn icon_size<T:Into<f32>>(mut self, icon_size: T) -> Self {
+        self.icon_size = Some(icon_size.into());
         self
     }
 
@@ -43,8 +43,8 @@ impl<'a> IconText<'a> {
     }
 
     pub fn widget(&self) -> Element<'a, Message, Theme, Renderer> {
-        let mut text = widget::text(self.text).size(20);
-        let mut icon = widget::image(self.icon.clone()).width(32).height(32);
+        let mut text = widget::text(self.text).size(16);
+        let mut icon = widget::image(self.icon.clone()).width(24).height(24);
 
         if let Some(size) = self.text_size {
             text = text.size(size);

@@ -20,6 +20,8 @@ impl KeysHint {
                 cache::get_cached_image_handle(icon).expect("Missing resource: key icon"),
             )
             .width(Fill)
+            .icon_size(32.0)
+            .text_size(18.0)
             .widget(),
             None => widget::space().width(Fill).into(),
         }
