@@ -67,10 +67,6 @@ impl AudioTrack {
         self.track_type.clone()
     }
 
-    pub fn sample_rate(&self) -> u32 {
-        self.sample_rate
-    }
-
     pub fn is_playing(&self) -> bool {
         self.is_playing
     }

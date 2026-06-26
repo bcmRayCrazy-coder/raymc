@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 
-use iced::{Element, Length::Fill, Padding, Task, alignment::Vertical::Bottom, widget, window};
+use iced::{Element, Length::Fill, Task, widget, window};
 
 use crate::ui::{
     app::{QuickKey, ViewPageName},

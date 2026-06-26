@@ -81,3 +81,9 @@ impl AudioStream {
         self.config.sample_format()
     }
 }
+
+impl Drop for AudioStream {
+    fn drop(&mut self) {
+        let _ = self.pause_stream();
+    }
+}

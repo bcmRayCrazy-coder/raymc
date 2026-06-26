@@ -1,7 +1,4 @@
-use std::{
-    ops::Mul,
-    sync::{Arc, Mutex},
-};
+use std::sync::{Arc, Mutex};
 
 use cpal::{
     FromSample, HostId, OutputCallbackInfo, SizedSample,

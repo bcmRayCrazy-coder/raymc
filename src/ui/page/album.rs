@@ -26,15 +26,6 @@ enum SongListItem {
     Song(String),
 }
 
-impl SongListItem {
-    pub fn is_empty(&self) -> bool {
-        match self {
-            Self::Empty => true,
-            Self::Song(_) => false,
-        }
-    }
-}
-
 impl Display for SongListItem {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         write!(
@@ -337,6 +328,7 @@ impl ViewPage for AlbumPage<'_> {
                         Task::none()
                     }
                 },
+
                 _ => Task::none(),
             },
 
