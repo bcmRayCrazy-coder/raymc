@@ -5,7 +5,10 @@ use iced_anim::{Animated, Easing, animation::animation};
 
 use crate::{
     cache, config,
-    player::album::{AlbumName, get_album_list},
+    player::{
+        album::{AlbumName, get_album_list},
+        song::PlaySong,
+    },
     ui::{
         app::{QuickKey, ViewPageName},
         message::{AlbumMessage, AudioMessage, Message, PlayerMessage, StateMessage},
@@ -23,7 +26,7 @@ pub enum AlbumState {
 #[derive(Debug, Clone, PartialEq, Eq)]
 enum SongListItem {
     Empty,
-    Song(String),
+    Song(PlaySong),
 }
 
 impl Display for SongListItem {
@@ -33,7 +36,7 @@ impl Display for SongListItem {
             "{}",
             match self {
                 SongListItem::Empty => "Empty",
-                Self::Song(name) => name,
+                Self::Song(name) => name.name(),
             }
         )
     }
@@ -41,7 +44,7 @@ impl Display for SongListItem {
 
 pub struct AlbumPage<'a> {
     album_list: Vec<AlbumName>,
-    song_list: Option<Vec<String>>,
+    song_list: Option<Vec<PlaySong>>,
     album_state: AlbumState,
 
     page_width: f32,
@@ -75,11 +78,6 @@ impl<'a> AlbumPage<'a> {
 
     fn current_album_name(&self) -> AlbumName {
         self.widget_anim_album_list.current().clone()
-        // if self.widget_anim_album_list.current_index() == 0 {
-        //     AlbumName::Single
-        // } else {
-        //     AlbumName::Album(self.album_list[self.widget_anim_album_list.current_index()].clone())
-        // }
     }
 
     fn album_dir(&self) -> PathBuf {
@@ -200,11 +198,7 @@ impl ViewPage for AlbumPage<'_> {
                     match current {
                         SongListItem::Empty => Task::none(),
                         SongListItem::Song(current) => Task::batch([
-                            Task::done(Message::Player(PlayerMessage::InsertJumpNext(
-                                self.current_album_name()
-                                    .get_dir(self.album_dir())
-                                    .join(current),
-                            ))),
+                            Task::done(Message::Player(PlayerMessage::InsertJumpNext(current))),
                             Task::done(Message::ActionPageJump(ViewPageName::Player)),
                         ]),
                     }

@@ -1,6 +1,6 @@
 use std::{fmt::Display, fs, path::PathBuf};
 
-use crate::audio::loader;
+use crate::{audio::loader, player::song::PlaySong};
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum AlbumName {
@@ -16,7 +16,7 @@ impl AlbumName {
         }
     }
 
-    pub fn get_songs(&self, album_dir: PathBuf) -> Vec<String> {
+    pub fn get_songs(&self, album_dir: PathBuf) -> Vec<PlaySong> {
         let mut song_list = Vec::new();
         if let Ok(entries) = fs::read_dir(self.get_dir(album_dir)) {
             for entry in entries {
@@ -27,7 +27,8 @@ impl AlbumName {
                     && loader::is_supported_type(&extension)
                     && let Some(file_name) = entry.file_name().to_str()
                 {
-                    song_list.push(file_name.to_owned());
+                    song_list.push(PlaySong::new(file_name.to_owned(), entry.path()));
+                    // song_list.push(file_name.to_owned());
                 }
             }
         }

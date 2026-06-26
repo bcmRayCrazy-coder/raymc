@@ -127,7 +127,7 @@ impl App {
                                     Ok(mut mixer) => {
                                         mixer.add_track(
                                             AudioTrack::from_disk(
-                                                file.to_str().expect("Audio load failed"),
+                                                file.path().to_str().expect("Audio load failed"),
                                                 AudioTrackType::PLAYER,
                                             )
                                             .expect("Audio load failed"),

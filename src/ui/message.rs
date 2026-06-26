@@ -5,7 +5,7 @@ use iced_anim::Event;
 
 use crate::{
     audio::track::AudioTrackType,
-    player::album::AlbumName,
+    player::{album::AlbumName, song::PlaySong},
     ui::{
         app::{QuickKey, ViewPageName},
         state::AppState,
@@ -66,7 +66,7 @@ pub enum PlayerMessage {
 
     PlayEnd,
 
-    InsertJumpNext(PathBuf),
+    InsertJumpNext(PlaySong),
     InsertJumpNextAlbum(AlbumName, PathBuf),
 }
 

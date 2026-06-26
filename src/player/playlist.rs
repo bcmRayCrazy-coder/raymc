@@ -1,6 +1,6 @@
 use std::{fs, path::PathBuf};
 
-use crate::audio::loader;
+use crate::{audio::loader, player::song::PlaySong};
 
 #[derive(Debug, Clone, PartialEq, PartialOrd)]
 pub enum PlaylistLoopMode {
@@ -11,14 +11,14 @@ pub enum PlaylistLoopMode {
     ListRandom,
 }
 
-pub type Playlist = Vec<PathBuf>;
+pub type Playlist = Vec<PlaySong>;
 
 pub trait PlaylistTrait {
     fn get_next_loop(&self, mode: &PlaylistLoopMode, current: Option<usize>) -> Option<usize>;
     fn get_list_next(&self, current: Option<usize>) -> Option<usize>;
     fn get_list_prev(&self, current: Option<usize>) -> Option<usize>;
 
-    fn insert_next(&mut self, current: Option<usize>, new: Vec<PathBuf>) -> usize;
+    fn insert_next(&mut self, current: Option<usize>, new: Vec<PlaySong>) -> usize;
 
     fn from_song_dir(song_dir: PathBuf) -> Self;
 }
@@ -88,7 +88,7 @@ impl PlaylistTrait for Playlist {
         }
     }
 
-    fn insert_next(&mut self, current: Option<usize>, new: Vec<PathBuf>) -> usize {
+    fn insert_next(&mut self, current: Option<usize>, new: Vec<PlaySong>) -> usize {
         match current {
             None => {
                 let begin = self.len();
@@ -118,7 +118,7 @@ impl PlaylistTrait for Playlist {
                 {
                     let path = song_dir.clone().join(file_name);
                     // println!("Song Path {:?}", path);
-                    playlist.push(path);
+                    playlist.push(PlaySong::from_path(path));
                 }
             }
         }
