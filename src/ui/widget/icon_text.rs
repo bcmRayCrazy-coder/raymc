@@ -32,7 +32,7 @@ impl<'a> IconText<'a> {
         self
     }
 
-    pub fn icon_size<T:Into<f32>>(mut self, icon_size: T) -> Self {
+    pub fn icon_size<T: Into<f32>>(mut self, icon_size: T) -> Self {
         self.icon_size = Some(icon_size.into());
         self
     }
