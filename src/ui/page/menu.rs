@@ -233,8 +233,8 @@ impl ViewPage for MenuPage<'_> {
         map.insert(QuickKey::KEY0, "Back".to_owned());
         map.insert(QuickKey::KEY1, "Player".to_owned());
         map.insert(QuickKey::KEY2, "Confirm".to_owned());
-        map.insert(QuickKey::KEYL, "Next".to_owned());
-        map.insert(QuickKey::KEYR, "Previous".to_owned());
+        map.insert(QuickKey::KEYL, "Previous".to_owned());
+        map.insert(QuickKey::KEYR, "Next".to_owned());
 
         map
     }

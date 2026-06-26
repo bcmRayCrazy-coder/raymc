@@ -30,9 +30,9 @@ impl KeysHint {
             self.get_item(QuickKey::KEY0, "icons/key1.png"),
             self.get_item(QuickKey::KEY1, "icons/key2.png"),
             self.get_item(QuickKey::KEY2, "icons/key3.png"),
-            self.get_item(QuickKey::KEYR, "icons/keyl.png"),
+            self.get_item(QuickKey::KEYL, "icons/keyl.png"),
             self.get_item(QuickKey::KEYM, "icons/keym.png"),
-            self.get_item(QuickKey::KEYL, "icons/keyr.png"),
+            self.get_item(QuickKey::KEYR, "icons/keyr.png"),
         ]
         .spacing(10)
         .width(Fill)

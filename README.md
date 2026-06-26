@@ -16,11 +16,11 @@ A **Music Center** Software designed in **Frutiger Aero (Dark / Aurora)** style.
 
 ### Page Keys
 
-| Page   | KEY0 | KEY1   | KEY2       | KEYL | KEYM | KEYR |
-| ------ | ---- | ------ | ---------- | ---- | ---- | ---- |
-| Menu   | -    | Player | Confirm    | Up   | -    | Down |
-| Album  | Back | Player | Confirm    | Up   | -    | Down |
-| Player | Back | -      | Play/Pause | -    | -    | -    |
+| Page   | KEY0 | KEY1   | KEY2       | KEYL     | KEYM       | KEYR |
+| ------ | ---- | ------ | ---------- | -------- | ---------- | ---- |
+| Menu   | -    | Player | Confirm    | Previous | -          | Next |
+| Album  | Back | Player | Confirm    | Previous | Play Album | Next |
+| Player | Back | -      | Play/Pause | -        | -          | -    |
 
 ## Format Support
 
