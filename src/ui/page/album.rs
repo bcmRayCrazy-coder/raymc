@@ -323,6 +323,7 @@ impl ViewPage for AlbumPage<'_> {
                     }
                 },
 
+                #[allow(unused)]
                 _ => Task::none(),
             },
 

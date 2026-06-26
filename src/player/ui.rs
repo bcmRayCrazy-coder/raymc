@@ -14,8 +14,11 @@ impl App {
             PlayerMessage::LoopNext => {
                 self.player_manager.loop_next();
                 Task::batch([
-                    Task::done(Message::State(StateMessage::OnPlayStateChanged(
+                    Task::done(Message::State(StateMessage::OnPlayStateChange(
                         self.player_manager.is_playing(),
+                    ))),
+                    Task::done(Message::State(StateMessage::OnCurrentSongChange(
+                        self.player_manager.current_song(),
                     ))),
                     Task::done(Message::Audio(UpdatePlayerSong)),
                 ])
@@ -23,8 +26,11 @@ impl App {
             PlayerMessage::ListNext => {
                 self.player_manager.list_next();
                 Task::batch([
-                    Task::done(Message::State(StateMessage::OnPlayStateChanged(
+                    Task::done(Message::State(StateMessage::OnPlayStateChange(
                         self.player_manager.is_playing(),
+                    ))),
+                    Task::done(Message::State(StateMessage::OnCurrentSongChange(
+                        self.player_manager.current_song(),
                     ))),
                     Task::done(Message::Audio(UpdatePlayerSong)),
                 ])
@@ -32,14 +38,17 @@ impl App {
             PlayerMessage::ListPrev => {
                 self.player_manager.list_prev();
                 Task::batch([
-                    Task::done(Message::State(StateMessage::OnPlayStateChanged(
+                    Task::done(Message::State(StateMessage::OnPlayStateChange(
                         self.player_manager.is_playing(),
+                    ))),
+                    Task::done(Message::State(StateMessage::OnCurrentSongChange(
+                        self.player_manager.current_song(),
                     ))),
                     Task::done(Message::Audio(UpdatePlayerSong)),
                 ])
             }
             PlayerMessage::PlayEnd => Task::batch([
-                Task::done(Message::State(StateMessage::OnPlayStateChanged(false))),
+                Task::done(Message::State(StateMessage::OnPlayStateChange(false))),
                 Task::done(Message::Player(PlayerMessage::LoopNext)),
             ]),
 
@@ -50,8 +59,11 @@ impl App {
                     .insert_next(self.player_manager.current, vec![new]);
                 self.player_manager.current = Some(pos);
                 Task::batch([
-                    Task::done(Message::State(StateMessage::OnPlayStateChanged(
+                    Task::done(Message::State(StateMessage::OnPlayStateChange(
                         self.player_manager.is_playing(),
+                    ))),
+                    Task::done(Message::State(StateMessage::OnCurrentSongChange(
+                        self.player_manager.current_song(),
                     ))),
                     Task::done(Message::Audio(UpdatePlayerSong)),
                 ])
@@ -65,8 +77,11 @@ impl App {
 
                 self.player_manager.current = Some(pos);
                 Task::batch([
-                    Task::done(Message::State(StateMessage::OnPlayStateChanged(
+                    Task::done(Message::State(StateMessage::OnPlayStateChange(
                         self.player_manager.is_playing(),
+                    ))),
+                    Task::done(Message::State(StateMessage::OnCurrentSongChange(
+                        self.player_manager.current_song(),
                     ))),
                     Task::done(Message::Audio(UpdatePlayerSong)),
                 ])

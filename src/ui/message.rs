@@ -75,7 +75,8 @@ pub enum StateMessage {
     Fetch,
 
     OnWindowResize(Size),
-    OnPlayStateChanged(bool),
+    OnCurrentSongChange(Option<PlaySong>),
+    OnPlayStateChange(bool),
 }
 
 #[derive(Debug, Clone)]

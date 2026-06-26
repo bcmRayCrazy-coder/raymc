@@ -1,12 +1,13 @@
 use std::collections::HashMap;
 
-use iced::{Element, Length::Fill, Task, widget};
+use iced::{Element, Length::Fill, Padding, Task, widget};
 
 use crate::{
     cache,
+    player::song::PlaySong,
     ui::{
         app::{QuickKey, ViewPageName},
-        message::{AudioMessage, Message, PlayerMessage, PlayerPageMessage},
+        message::{AudioMessage, Message, PlayerMessage, PlayerPageMessage, StateMessage},
         page::page::ViewPage,
         state::AppState,
     },
@@ -35,6 +36,24 @@ impl PlayerPage {
         .height(50.0)
         .into()
     }
+
+    pub fn page_song_empty(&self) -> Element<'_, Message> {
+        widget::container(widget::text("Nothing to play").center())
+            .center(Fill)
+            .into()
+    }
+
+    pub fn page_song_some(&self, song: &PlaySong) -> Element<'_, Message> {
+        widget::container(widget::column![
+            widget::container(widget::text(format!("Now playing {}", song.name())).center())
+                .center_x(Fill),
+            widget::container(self.widget_play_button())
+                .center_x(Fill)
+                .padding(Padding::ZERO.vertical(10))
+        ])
+        .center(Fill)
+        .into()
+    }
 }
 
 impl ViewPage for PlayerPage {
@@ -44,7 +63,12 @@ impl ViewPage for PlayerPage {
             .height(Fill)
             .content_fit(iced::ContentFit::Cover);
 
-        widget::stack![background, self.widget_play_button()].into()
+        let page = match self.state.current_song.as_ref() {
+            None => self.page_song_empty(),
+            Some(song) => self.page_song_some(song),
+        };
+
+        widget::stack![background, page].into()
     }
 
     fn update(&mut self, message: Message) -> iced::Task<Message> {
@@ -61,6 +85,8 @@ impl ViewPage for PlayerPage {
                 self.state = new_state;
                 Task::done(Message::ActionUpdateKeysHint)
             }
+
+            Message::OnPageShow => Task::done(Message::State(StateMessage::Fetch)),
 
             Message::QuickKeyAction(key) => match key {
                 QuickKey::KEY0 => Task::done(Message::ActionPageBack),
@@ -82,12 +108,16 @@ impl ViewPage for PlayerPage {
         let mut map = HashMap::new();
 
         map.insert(QuickKey::KEY0, "Back".to_owned());
-        map.insert(QuickKey::KEY1, {
-            match self.state.is_playing {
-                true => "Pause".to_owned(),
-                false => "Play".to_owned(),
-            }
-        });
+
+        if self.state.current_song.is_some() {
+            map.insert(QuickKey::KEY1, {
+                match self.state.is_playing {
+                    true => "Pause".to_owned(),
+                    false => "Play".to_owned(),
+                }
+            });
+        }
+
         map.insert(QuickKey::KEYL, "Previous".to_owned());
         map.insert(QuickKey::KEYR, "Next".to_owned());
 

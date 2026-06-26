@@ -160,14 +160,14 @@ impl App {
                                 track.replay();
                             }
                             track.set_playing(true);
-                            return Task::done(Message::State(StateMessage::OnPlayStateChanged(
+                            return Task::done(Message::State(StateMessage::OnPlayStateChange(
                                 true,
                             )));
                         } else {
                             if self.player_manager.current.is_some() {
                                 return Task::batch([
                                     Task::done(Message::Audio(AudioMessage::UpdatePlayerSong)),
-                                    Task::done(Message::State(StateMessage::OnPlayStateChanged(
+                                    Task::done(Message::State(StateMessage::OnPlayStateChange(
                                         true,
                                     ))),
                                 ]);
@@ -187,7 +187,7 @@ impl App {
                         if let Some(track) = mixer.tracks.get_mut(&AudioTrackType::PLAYER) {
                             track.set_playing(false);
                         }
-                        Task::done(Message::State(StateMessage::OnPlayStateChanged(false)))
+                        Task::done(Message::State(StateMessage::OnPlayStateChange(false)))
                     }
                     Err(_) => Task::perform(tokio::time::sleep(Duration::from_millis(1)), |_| {
                         Message::Audio(AudioMessage::PlayerPause)

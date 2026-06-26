@@ -1,4 +1,7 @@
-use crate::player::playlist::{Playlist, PlaylistLoopMode, PlaylistTrait};
+use crate::player::{
+    playlist::{Playlist, PlaylistLoopMode, PlaylistTrait},
+    song::PlaySong,
+};
 
 pub struct PlayerManager {
     pub playlist: Playlist,
@@ -21,6 +24,20 @@ impl PlayerManager {
     pub fn current(&self) -> Option<usize> {
         self.current.clone()
     }
+
+    pub fn current_song(&self) -> Option<PlaySong> {
+        match self.current {
+            None => None,
+            Some(i) => {
+                if i >= self.playlist.len() {
+                    None
+                } else {
+                    Some(self.playlist[i].clone())
+                }
+            }
+        }
+    }
+
     pub fn is_playing(&self) -> bool {
         self.current.is_some()
     }
