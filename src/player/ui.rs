@@ -1,7 +1,7 @@
 use iced::Task;
 
 use crate::{
-    player::playlist::PlaylistTrait,
+    player::playlist::{Playlist, PlaylistTrait},
     ui::{
         app::App,
         message::{AudioMessage::UpdatePlayerSong, Message, PlayerMessage, StateMessage},
@@ -38,6 +38,10 @@ impl App {
                     Task::done(Message::Audio(UpdatePlayerSong)),
                 ])
             }
+            PlayerMessage::PlayEnd => Task::batch([
+                Task::done(Message::State(StateMessage::OnPlayStateChanged(false))),
+                Task::done(Message::Player(PlayerMessage::LoopNext)),
+            ]),
 
             PlayerMessage::InsertJumpNext(new) => {
                 let pos = self
@@ -52,10 +56,21 @@ impl App {
                     Task::done(Message::Audio(UpdatePlayerSong)),
                 ])
             }
-            PlayerMessage::PlayEnd => Task::batch([
-                Task::done(Message::State(StateMessage::OnPlayStateChanged(false))),
-                Task::done(Message::Player(PlayerMessage::LoopNext)),
-            ]),
+
+            PlayerMessage::InsertJumpNextAlbum(album, dir) => {
+                let pos = self.player_manager.playlist.len();
+                self.player_manager
+                    .playlist
+                    .append(&mut Playlist::from_song_dir(album.get_dir(dir)));
+
+                self.player_manager.current = Some(pos);
+                Task::batch([
+                    Task::done(Message::State(StateMessage::OnPlayStateChanged(
+                        self.player_manager.is_playing(),
+                    ))),
+                    Task::done(Message::Audio(UpdatePlayerSong)),
+                ])
+            }
         }
     }
 }

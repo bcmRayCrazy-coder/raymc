@@ -7,7 +7,7 @@ pub enum BluetoothError {
     AdapterUnavailable,
     ScanFailed,
     ConnectFailed,
-    DisconnectFailed
+    DisconnectFailed,
 }
 
 pub struct BluetoothManager {

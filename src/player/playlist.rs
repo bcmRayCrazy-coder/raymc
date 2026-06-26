@@ -117,7 +117,7 @@ impl PlaylistTrait for Playlist {
                     && let Some(file_name) = entry.file_name().to_str()
                 {
                     let path = song_dir.clone().join(file_name);
-                    println!("Song Path {:?}", path);
+                    // println!("Song Path {:?}", path);
                     playlist.push(path);
                 }
             }

@@ -67,6 +67,7 @@ pub enum PlayerMessage {
     PlayEnd,
 
     InsertJumpNext(PathBuf),
+    InsertJumpNextAlbum(AlbumName, PathBuf),
 }
 
 #[derive(Debug, Clone)]

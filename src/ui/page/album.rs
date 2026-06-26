@@ -14,13 +14,13 @@ use crate::{
     },
 };
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub enum AlbumState {
     Album,
     Song(AlbumName),
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 enum SongListItem {
     Empty,
     Song(String),
@@ -49,14 +49,14 @@ impl Display for SongListItem {
 }
 
 pub struct AlbumPage<'a> {
-    album_list: Vec<String>,
+    album_list: Vec<AlbumName>,
     song_list: Option<Vec<String>>,
     album_state: AlbumState,
 
     page_width: f32,
     page_height: f32,
 
-    widget_anim_album_list: AnimList<'a, String>,
+    widget_anim_album_list: AnimList<'a, AlbumName>,
     widget_anim_song_list: AnimList<'a, SongListItem>,
 
     anim_page_transition: Animated<f32>,
@@ -65,7 +65,7 @@ pub struct AlbumPage<'a> {
 impl<'a> AlbumPage<'a> {
     pub fn new() -> Self {
         Self {
-            album_list: vec!["Single".to_owned()],
+            album_list: vec![AlbumName::Single],
             song_list: None,
             album_state: AlbumState::Album,
 
@@ -83,11 +83,12 @@ impl<'a> AlbumPage<'a> {
     }
 
     fn current_album_name(&self) -> AlbumName {
-        if self.widget_anim_album_list.current_index() == 0 {
-            AlbumName::Single
-        } else {
-            AlbumName::Album(self.album_list[self.widget_anim_album_list.current_index()].clone())
-        }
+        self.widget_anim_album_list.current().clone()
+        // if self.widget_anim_album_list.current_index() == 0 {
+        //     AlbumName::Single
+        // } else {
+        //     AlbumName::Album(self.album_list[self.widget_anim_album_list.current_index()].clone())
+        // }
     }
 
     fn album_dir(&self) -> PathBuf {
@@ -125,6 +126,14 @@ impl<'a> AlbumPage<'a> {
                 Task::done(Message::Album(AlbumMessage::LoadSongs(album_name.clone())))
             }
         }
+    }
+
+    fn can_play_album(&self) -> bool {
+        self.album_state == AlbumState::Album
+            && !self
+                .widget_anim_song_list
+                .list
+                .contains(&SongListItem::Empty)
     }
 }
 
@@ -212,7 +221,7 @@ impl ViewPage for AlbumPage<'_> {
             },
 
             Message::Album(AlbumMessage::LoadAlbums(refresh)) => {
-                self.album_list = vec!["Single".to_owned()];
+                self.album_list = vec![AlbumName::Single];
                 let mut user_album_list = get_album_list(&self.album_dir());
                 self.album_list.append(&mut user_album_list);
 
@@ -267,10 +276,27 @@ impl ViewPage for AlbumPage<'_> {
                     AlbumState::Album => {
                         self.jump_page(Message::ActionPageJump(ViewPageName::Menu))
                     }
-                    AlbumState::Song(_) => self.toggle_state(&AlbumState::Album),
+                    AlbumState::Song(_) => Task::batch([
+                        self.toggle_state(&AlbumState::Album),
+                        Task::done(Message::ActionUpdateKeysHint),
+                    ]),
                 },
                 QuickKey::KEY1 => Task::done(Message::ActionPageJump(ViewPageName::Player)),
-                QuickKey::KEY2 => Task::done(Message::Album(AlbumMessage::ConfirmSelect)),
+                QuickKey::KEY2 => Task::batch([
+                    Task::done(Message::Album(AlbumMessage::ConfirmSelect)),
+                    Task::done(Message::ActionUpdateKeysHint),
+                ]),
+
+                QuickKey::KEYM => match self.can_play_album() {
+                    false => Task::none(),
+                    true => Task::batch([Task::done(Message::Player(
+                        PlayerMessage::InsertJumpNextAlbum(
+                            self.widget_anim_album_list.current().clone(),
+                            self.album_dir(),
+                        ),
+                    ))]),
+                },
+
                 QuickKey::KEYL => match self.album_state {
                     AlbumState::Album => {
                         if self.widget_anim_album_list.scroll_prev() {
@@ -279,6 +305,7 @@ impl ViewPage for AlbumPage<'_> {
                                 Task::done(Message::Album(AlbumMessage::LoadSongs(
                                     self.current_album_name(),
                                 ))),
+                                Task::done(Message::ActionUpdateKeysHint),
                             ]);
                         }
                         Task::none()
@@ -298,6 +325,7 @@ impl ViewPage for AlbumPage<'_> {
                                 Task::done(Message::Album(AlbumMessage::LoadSongs(
                                     self.current_album_name(),
                                 ))),
+                                Task::done(Message::ActionUpdateKeysHint),
                             ]);
                         }
                         Task::none()
@@ -328,6 +356,10 @@ impl ViewPage for AlbumPage<'_> {
         map.insert(QuickKey::KEY2, "Confirm".to_owned());
         map.insert(QuickKey::KEYL, "Next".to_owned());
         map.insert(QuickKey::KEYR, "Previous".to_owned());
+
+        if self.can_play_album() {
+            map.insert(QuickKey::KEYM, "Play Album".to_owned());
+        }
 
         map
     }
