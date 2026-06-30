@@ -1,6 +1,11 @@
 use std::collections::HashMap;
 
-use iced::{Element, Length::Fill, Padding, Task, widget};
+use iced::{
+    Element,
+    Length::Fill,
+    Padding, Task,
+    widget::{self, image},
+};
 
 use crate::{
     cache,
@@ -37,6 +42,23 @@ impl PlayerPage {
         .into()
     }
 
+    pub fn widget_cover_image(&self, image: image::Handle) -> Element<'_, Message> {
+        // 600 => 468
+        let size = f32::min(256.0, self.state.page_size.width * 0.25);
+        widget::stack![
+            widget::image(image).scale(0.78),
+            widget::container(
+                widget::image(cache::get_cached_image_handle("menu_icon_bg.png").unwrap())
+                    .width(size)
+                    .width(size),
+            )
+            .center(size)
+        ]
+        .width(size)
+        .height(size)
+        .into()
+    }
+
     pub fn page_song_empty(&self) -> Element<'_, Message> {
         widget::container(widget::text("Nothing to play").center())
             .center(Fill)
@@ -44,12 +66,16 @@ impl PlayerPage {
     }
 
     pub fn page_song_some(&self, song: &PlaySong) -> Element<'_, Message> {
-        widget::container(widget::column![
-            widget::container(widget::text(format!("Now playing {}", song.name())).center())
-                .center_x(Fill),
-            widget::container(self.widget_play_button())
-                .center_x(Fill)
-                .padding(Padding::ZERO.vertical(10))
+        let cover_image = match &song.cover {
+            None => cache::get_cached_image_handle("cover_default.png").unwrap(),
+            Some(path) => image::Handle::from_path(path),
+        };
+        widget::container(widget::row![
+            self.widget_cover_image(cover_image) // widget::container(widget::text(format!("Now playing {}", song.name())).center())
+                                                 //     .center_x(Fill),
+                                                 // widget::container(self.widget_play_button())
+                                                 //     .center_x(Fill)
+                                                 //     .padding(Padding::ZERO.vertical(10))
         ])
         .center(Fill)
         .into()

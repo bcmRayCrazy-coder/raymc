@@ -41,7 +41,7 @@ pub fn get_cached_image_handle_list() -> Vec<image::Handle> {
     cached_asset.image_handle.values().cloned().collect()
 }
 
-const CACHED_IMAGES: [&str; 18] = [
+const CACHED_IMAGES: [&str; 19] = [
     "icons/album.png",
     "icons/options.png",
     "icons/playlist.png",
@@ -59,6 +59,7 @@ const CACHED_IMAGES: [&str; 18] = [
     "icon.png",
     "bg.png",
     "menu_icon_bg.png",
+    "cover_default.png",
     "user.png",
 ];
 
