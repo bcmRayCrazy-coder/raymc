@@ -18,11 +18,17 @@ use iced::{
 use ui::app::App;
 
 fn load_app_icon() -> Option<Icon> {
-    let img = embed::get_embed_file("icon.png")?;
-    icon::from_file_data(&img.data, Some(image::ImageFormat::Png)).ok()
-    // let img = image::open(path).ok()?;
-    // icon::
-    // icon::from_rgba(img.to_rgba8().to_vec(), 256, 256).ok()
+    let img = image::load_from_memory_with_format(
+        &embed::get_embed_file("icon.png").unwrap().data,
+        image::ImageFormat::Png,
+    )
+    .ok()?
+    .to_rgba8();
+
+    let size = img.dimensions();
+    println!("Icon size {:?}", size);
+
+    icon::from_rgba(img.into_raw(), size.0, size.1).ok()
 }
 
 fn main() -> iced::Result {
