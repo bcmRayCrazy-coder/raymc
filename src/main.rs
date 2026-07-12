@@ -37,7 +37,9 @@ fn main() -> iced::Result {
     cache::load_cached_asset();
 
     let app_settings = Settings {
-        // fullscreen: true,
+        #[cfg(not(debug_assertions))]
+        fullscreen: true,
+
         icon: load_app_icon(),
         ..Default::default()
     };
