@@ -8,6 +8,7 @@ use crate::{
     player::{album::AlbumName, song::PlaySong},
     ui::{
         app::{QuickKey, ViewPageName},
+        page::player::AnimBtnMessage,
         state::AppState,
         widget::anim_list::AnimListEvent,
     },
@@ -101,6 +102,8 @@ pub enum AlbumMessage {
 
 #[derive(Debug, Clone)]
 pub enum PlayerPageMessage {
+    UpdateAnimBtn(AnimBtnMessage),
+
     TogglePlay,
 }
 

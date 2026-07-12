@@ -1,11 +1,12 @@
 use std::collections::HashMap;
 
 use iced::{
-    Element,
+    Alignment, Element,
     Length::Fill,
-    Task,
+    Padding, Task,
     widget::{self, image},
 };
+use iced_anim::{Animated, Easing, Event, animation::animation};
 
 use crate::{
     cache,
@@ -18,27 +19,78 @@ use crate::{
     },
 };
 
+#[derive(Debug, Clone)]
+pub enum AnimBtnMessage {
+    Play(Event<f32>),
+}
+
+struct AnimBtnStates {
+    play: Animated<f32>,
+}
+
+impl Default for AnimBtnStates {
+    fn default() -> Self {
+        Self {
+            play: Animated::transition(1.0, Easing::EASE_IN_OUT.very_quick()),
+        }
+    }
+}
+
+impl AnimBtnStates {
+    pub fn toggle_play() -> AnimBtnMessage {
+        AnimBtnMessage::Play(Event::Target(0.8))
+    }
+
+    pub fn update(&mut self, message: AnimBtnMessage) {
+        match message {
+            AnimBtnMessage::Play(event) => {
+                self.play.update(event);
+                if !self.play.is_animating() {
+                    self.play.update(Event::Target(1.0));
+                }
+            }
+        }
+    }
+}
+
 pub struct PlayerPage {
     state: Box<AppState>,
+
+    anim_btn: AnimBtnStates,
 }
 
 impl PlayerPage {
     pub fn new() -> Self {
         Self {
             state: Box::new(AppState::default()),
+            anim_btn: AnimBtnStates::default(),
         }
     }
 
     pub fn widget_play_button(&self) -> Element<'_, Message> {
-        widget::image(
-            cache::get_cached_image_handle(match self.state.is_playing {
-                true => "icons/pause.png",
-                false => "icons/play.png",
-            })
-            .unwrap(),
+        let size = 50.0 * self.anim_btn.play.value();
+        animation(
+            &self.anim_btn.play,
+            widget::container(
+                widget::image(
+                    cache::get_cached_image_handle(match self.state.is_playing {
+                        true => "icons/pause.png",
+                        false => "icons/play.png",
+                    })
+                    .unwrap(),
+                )
+                .width(size)
+                .height(size),
+            )
+            .width(50.0)
+            .height(50.0)
+            .align_x(Alignment::Center)
+            .align_y(Alignment::Center)
+            .clip(true),
         )
-        .width(50.0)
-        .height(50.0)
+        .on_update(|e| {
+            Message::PlayerPage(PlayerPageMessage::UpdateAnimBtn(AnimBtnMessage::Play(e)))
+        })
         .into()
     }
 
@@ -70,12 +122,13 @@ impl PlayerPage {
             None => cache::get_cached_image_handle("cover_default.png").unwrap(),
             Some(path) => image::Handle::from_path(path),
         };
-        widget::container(widget::row![
-            self.widget_cover_image(cover_image) // widget::container(widget::text(format!("Now playing {}", song.name())).center())
-                                                 //     .center_x(Fill),
-                                                 // widget::container(self.widget_play_button())
-                                                 //     .center_x(Fill)
-                                                 //     .padding(Padding::ZERO.vertical(10))
+        widget::container(widget::column![
+            widget::container(self.widget_cover_image(cover_image)).center_x(Fill),
+            widget::container(
+                widget::row![self.widget_play_button()].align_y(iced::Alignment::Center)
+            )
+            .center_x(Fill)
+            .padding(Padding::ZERO.vertical(10))
         ])
         .center(Fill)
         .into()
@@ -99,13 +152,21 @@ impl ViewPage for PlayerPage {
 
     fn update(&mut self, message: Message) -> iced::Task<Message> {
         match message {
-            Message::PlayerPage(PlayerPageMessage::TogglePlay) => {
+            Message::PlayerPage(PlayerPageMessage::UpdateAnimBtn(message)) => {
+                self.anim_btn.update(message);
+                Task::none()
+            }
+
+            Message::PlayerPage(PlayerPageMessage::TogglePlay) => Task::batch([
+                Task::done(Message::PlayerPage(PlayerPageMessage::UpdateAnimBtn(
+                    AnimBtnStates::toggle_play(),
+                ))),
                 if self.state.is_playing {
                     Task::done(Message::Audio(AudioMessage::PlayerPause))
                 } else {
                     Task::done(Message::Audio(AudioMessage::PlayerPlay))
-                }
-            }
+                },
+            ]),
 
             Message::UpdatePageState(new_state) => {
                 self.state = new_state;
