@@ -1,10 +1,12 @@
+use std::fmt::Debug;
+
 use cpal::{
-    Device, FromSample, Host, OutputCallbackInfo, SampleFormat, SizedSample, Stream,
+    Device, FromSample, OutputCallbackInfo, SampleFormat, SizedSample, Stream,
     SupportedStreamConfig,
     traits::{DeviceTrait, StreamTrait},
 };
 
-#[derive(Debug, Clone)]
+#[derive(Clone)]
 pub enum AudioError {
     BuildStreamError(cpal::Error),
     UnsupportFormat(SampleFormat),
@@ -13,17 +15,27 @@ pub enum AudioError {
     StreamNotBuild,
 }
 
+impl Debug for AudioError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            Self::BuildStreamError(arg0) => f.debug_tuple("BuildStreamError").field(arg0).finish(),
+            Self::UnsupportFormat(arg0) => f.debug_tuple("UnsupportFormat").field(arg0).finish(),
+            Self::PlayStreamError(arg0) => f.debug_tuple("PlayStreamError").field(arg0).finish(),
+            Self::PauseStreamError(arg0) => f.debug_tuple("PauseStreamError").field(arg0).finish(),
+            Self::StreamNotBuild => write!(f, "StreamNotBuild"),
+        }
+    }
+}
+
 pub struct AudioStream {
-    host: Host,
     device: Device,
     config: SupportedStreamConfig,
     stream: Option<Stream>,
 }
 
 impl AudioStream {
-    pub fn new(host: Host, device: Device, config: SupportedStreamConfig) -> Self {
+    pub fn new(device: Device, config: SupportedStreamConfig) -> Self {
         Self {
-            host,
             device,
             config,
             stream: None,

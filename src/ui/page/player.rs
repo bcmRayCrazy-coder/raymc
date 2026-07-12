@@ -3,7 +3,7 @@ use std::collections::HashMap;
 use iced::{
     Element,
     Length::Fill,
-    Padding, Task,
+    Task,
     widget::{self, image},
 };
 

@@ -114,7 +114,7 @@ impl Default for AudioManager {
             config.config().sample_rate
         );
 
-        let stream = AudioStream::new(host, device, config);
+        let stream = AudioStream::new(device, config);
         let mixer = AudioMixer::new(stream.sample_rate());
 
         Self {

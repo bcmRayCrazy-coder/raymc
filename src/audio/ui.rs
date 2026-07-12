@@ -24,6 +24,7 @@ impl App {
     pub fn boot_audio(&mut self) {
         self.audio_manager
             .build_stream()
+            .inspect_err(|err| eprintln!("Audio Error {:?}", err))
             .expect("Unable to build audio stream");
         let audio_stream = self.audio_manager.stream.clone();
         let audio_mixer = self.audio_manager.mixer.clone();

@@ -8,9 +8,7 @@ pub struct PlaySong {
 }
 
 const SUPPORTED_COVER_EXT: &[&str] = &["png", "jpg", "jpeg"];
-fn is_supported_cover_type(ext: &str) -> bool {
-    SUPPORTED_COVER_EXT.contains(&&ext.to_lowercase().as_str())
-}
+
 impl PlaySong {
     pub fn new(name: String, path: PathBuf) -> Self {
         Self {
