@@ -1,15 +1,15 @@
 use cpal::{
-    BuildStreamError, Device, FromSample, Host, OutputCallbackInfo, PauseStreamError,
-    PlayStreamError, SampleFormat, SizedSample, Stream, SupportedStreamConfig,
+    Device, FromSample, Host, OutputCallbackInfo, SampleFormat, SizedSample, Stream,
+    SupportedStreamConfig,
     traits::{DeviceTrait, StreamTrait},
 };
 
 #[derive(Debug, Clone)]
 pub enum AudioError {
-    BuildStreamError(BuildStreamError),
+    BuildStreamError(cpal::Error),
     UnsupportFormat(SampleFormat),
-    PlayStreamError(PlayStreamError),
-    PauseStreamError(PauseStreamError),
+    PlayStreamError(cpal::Error),
+    PauseStreamError(cpal::Error),
     StreamNotBuild,
 }
 
@@ -37,9 +37,9 @@ impl AudioStream {
     {
         let config = self.config.config();
         let stream = self.device.build_output_stream(
-            &config,
+            config,
             data_callback,
-            |err: cpal::StreamError| eprintln!("Error building output stream {}", err),
+            |err| eprintln!("Error building output stream {}", err),
             None,
         );
         match stream {

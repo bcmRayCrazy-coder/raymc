@@ -5,7 +5,7 @@ edition = "2024"
 
 [dependencies]
 bluest = "0.6.9"
-cpal = { version = "0.17.3", features = ["jack"] }
+cpal = { version = "=0.18.1", features = ["jack"] }
 iced = { version = "0.14.0", features = ["image", "tokio"] }
 iced_anim = "0.3.1"
 image = "0.25.10"
