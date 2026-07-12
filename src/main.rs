@@ -17,9 +17,12 @@ use iced::{
 };
 use ui::app::App;
 
-fn load_app_icon(path: &str) -> Option<Icon> {
-    let img = image::open(path).ok()?;
-    icon::from_rgba(img.to_rgba8().to_vec(), 256, 256).ok()
+fn load_app_icon() -> Option<Icon> {
+    let img = embed::get_embed_file("icon.png")?;
+    icon::from_file_data(&img.data, Some(image::ImageFormat::Png)).ok()
+    // let img = image::open(path).ok()?;
+    // icon::
+    // icon::from_rgba(img.to_rgba8().to_vec(), 256, 256).ok()
 }
 
 fn main() -> iced::Result {
@@ -29,7 +32,7 @@ fn main() -> iced::Result {
 
     let app_settings = Settings {
         // fullscreen: true,
-        icon: load_app_icon("./assets/icon.png"),
+        icon: load_app_icon(),
         ..Default::default()
     };
 

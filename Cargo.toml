@@ -1,7 +1,8 @@
 [package]
 name = "raymc"
-version = "0.1.0"
+version = "0.1.1"
 edition = "2024"
+build = "src/build.rs"
 
 [dependencies]
 bluest = "0.6.9"
@@ -15,6 +16,9 @@ rust-embed = "8.11.0"
 souvlaki = "0.8.3"
 symphonia = { version = "0.6.0", features = ["mp3"] }
 tokio = { version = "1.52.3", features = ["time"] }
+
+[build-dependencies]
+winres = "0.1.12"
 
 [profile.dev]
 opt-level = 1
