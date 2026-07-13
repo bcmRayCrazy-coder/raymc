@@ -46,7 +46,12 @@ impl App {
             }
             StateMessage::OnPlayStateChange(is_playing) => {
                 self.state.is_playing = is_playing;
-                Task::done(Message::UpdatePageState(Box::new(self.state.clone())))
+                Task::batch([
+                    Task::done(Message::UpdatePageState(Box::new(self.state.clone()))),
+                    Task::done(Message::MediaControl(MediaControlMessage::UpdatePlaying(
+                        is_playing,
+                    ))),
+                ])
             }
         }
     }

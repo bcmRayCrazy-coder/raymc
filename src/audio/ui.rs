@@ -195,6 +195,24 @@ impl App {
                     }),
                 }
             }
+            AudioMessage::PlayerToggle => {
+                let mixer = self.audio_manager.mixer.lock();
+                let mut target_playing_state = true;
+                match mixer {
+                    Ok(mut mixer) => {
+                        if let Some(track) = mixer.tracks.get_mut(&AudioTrackType::PLAYER) {
+                            target_playing_state = !track.is_playing();
+                            track.set_playing(target_playing_state);
+                        }
+                        Task::done(Message::State(StateMessage::OnPlayStateChange(
+                            target_playing_state,
+                        )))
+                    }
+                    Err(_) => Task::perform(tokio::time::sleep(Duration::from_millis(1)), |_| {
+                        Message::Audio(AudioMessage::PlayerToggle)
+                    }),
+                }
+            }
         }
     }
 
@@ -202,17 +220,17 @@ impl App {
         Subscription::run(|| {
             stream::channel(127, async |mut output| {
                 // output.send(Message::None).await;
-                let (sender, mut reveiver) = mpsc::channel(127);
+                let (sender, mut receiver) = mpsc::channel(127);
                 output
                     .send(Message::Audio(AudioMessage::AudioMpscReady(sender)))
                     .await
-                    .expect("Unable to open mpsc channel");
+                    .expect("Unable to open mpsc channel for audio");
 
                 loop {
-                    if let Some(input) = reveiver.next().await
+                    if let Some(input) = receiver.next().await
                         && let Err(err) = output.send(input).await
                     {
-                        eprintln!("Failed to send message from audio: {:?}", err);
+                        eprintln!("Failed to send message from audio\n{:?}", err);
                     }
                 }
             })

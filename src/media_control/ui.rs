@@ -1,4 +1,8 @@
-use iced::Task;
+use iced::{
+    Subscription, Task,
+    futures::{SinkExt, StreamExt, channel::mpsc},
+    stream,
+};
 
 use crate::{
     media_control::manager::MediaControlManager,
@@ -30,12 +34,23 @@ impl App {
                     };
                     Task::none()
                 }
-                None => Task::done(Message::MediaControl(MediaControlMessage::Init)),
+                None => Task::none(),
             },
+            MediaControlMessage::UpdatePlaying(is_playing) => {
+                match self.media_control_manager.as_mut() {
+                    Some(media_control_manager) => {
+                        let _ = media_control_manager
+                            .set_playing(is_playing)
+                            .inspect_err(|err| eprintln!("Media Control Error\n{:?}", err));
+                        Task::none()
+                    }
+                    None => Task::none(),
+                }
+            }
 
-            MediaControlMessage::Init => {
+            MediaControlMessage::Init(sender) => {
                 if self.media_control_manager.is_none() {
-                    match MediaControlManager::new() {
+                    match MediaControlManager::new(sender) {
                         Ok(media_control_manager) => {
                             self.media_control_manager = Some(media_control_manager)
                         }
@@ -45,5 +60,25 @@ impl App {
                 Task::none()
             }
         }
+    }
+
+    pub fn subscription_media_control(&self) -> Subscription<Message> {
+        Subscription::run(|| {
+            stream::channel(127, async |mut output| {
+                let (sender, mut receiver) = mpsc::channel(127);
+                output
+                    .send(Message::MediaControl(MediaControlMessage::Init(sender)))
+                    .await
+                    .expect("Unable to open mpsc channel for media control");
+
+                loop {
+                    if let Some(input) = receiver.next().await
+                        && let Err(err) = output.send(input).await
+                    {
+                        eprintln!("Failed to send message from media control\n{:?}", err);
+                    }
+                }
+            })
+        })
     }
 }

@@ -60,6 +60,7 @@ pub enum AudioMessage {
     UpdatePlayerSong,
     PlayerPlay,
     PlayerPause,
+    PlayerToggle,
 }
 
 #[derive(Debug, Clone)]
@@ -77,8 +78,9 @@ pub enum PlayerMessage {
 #[derive(Debug, Clone)]
 pub enum MediaControlMessage {
     UpdateSong(Option<PlaySong>),
+    UpdatePlaying(bool),
 
-    Init,
+    Init(mpsc::Sender<Message>),
 }
 
 #[derive(Debug, Clone)]

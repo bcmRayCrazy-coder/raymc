@@ -55,7 +55,7 @@ impl App {
             view_page_manager: ViewPageManager::new(),
             audio_manager: AudioManager::default(),
             player_manager: PlayerManager::default(),
-            media_control_manager: MediaControlManager::new().ok(),
+            media_control_manager: None,
 
             state: AppState::default(),
         }
@@ -96,6 +96,7 @@ impl App {
     pub fn subscription(&self) -> Subscription<Message> {
         Subscription::batch([
             self.subscription_audio(),
+            self.subscription_media_control(),
             event::listen_with(|event, _status, window_id| {
                 if let Event::Window(window_event) = &event {
                     match window_event {
