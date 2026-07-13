@@ -3,7 +3,7 @@ use std::collections::HashMap;
 use iced::{
     Alignment, Element,
     Length::Fill,
-    Padding, Task,
+    Task,
     widget::{self, image},
 };
 use iced_anim::{Animated, Easing, Event, animation::animation};
@@ -69,13 +69,26 @@ impl PlayerPage {
 
     pub fn widget_play_button(&self) -> Element<'_, Message> {
         let size = 50.0 * self.anim_btn.play.value();
+        let disabled = self.state.current_song.is_none();
         animation(
             &self.anim_btn.play,
             widget::container(
                 widget::image(
                     cache::get_cached_image_handle(match self.state.is_playing {
-                        true => "icons/pause.png",
-                        false => "icons/play.png",
+                        true => {
+                            if disabled {
+                                "icons/pause_disabled.png"
+                            } else {
+                                "icons/pause.png"
+                            }
+                        }
+                        false => {
+                            if disabled {
+                                "icons/play_disabled.png"
+                            } else {
+                                "icons/play.png"
+                            }
+                        }
                     })
                     .unwrap(),
                 )
@@ -122,14 +135,13 @@ impl PlayerPage {
             None => cache::get_cached_image_handle("cover_default.png").unwrap(),
             Some(path) => image::Handle::from_path(path),
         };
-        widget::container(widget::column![
-            widget::container(self.widget_cover_image(cover_image)).center_x(Fill),
-            widget::container(
-                widget::row![self.widget_play_button()].align_y(iced::Alignment::Center)
-            )
-            .center_x(Fill)
-            .padding(Padding::ZERO.vertical(10))
-        ])
+        widget::container(
+            widget::column![
+                widget::container(self.widget_cover_image(cover_image)).center_x(Fill),
+                widget::container(self.widget_play_button()).center_x(Fill)
+            ]
+            .spacing(10),
+        )
         .center(Fill)
         .into()
     }
