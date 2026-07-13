@@ -4,7 +4,7 @@ use crate::{
     player::song::PlaySong,
     ui::{
         app::App,
-        message::{Message, StateMessage},
+        message::{MediaControlMessage, Message, StateMessage},
     },
 };
 
@@ -37,7 +37,12 @@ impl App {
             }
             StateMessage::OnCurrentSongChange(current_song) => {
                 self.state.current_song = current_song.map(|s| s.detect_cover());
-                Task::done(Message::UpdatePageState(Box::new(self.state.clone())))
+                Task::batch([
+                    Task::done(Message::UpdatePageState(Box::new(self.state.clone()))),
+                    Task::done(Message::MediaControl(MediaControlMessage::UpdateSong(
+                        self.state.current_song.clone(),
+                    ))),
+                ])
             }
             StateMessage::OnPlayStateChange(is_playing) => {
                 self.state.is_playing = is_playing;

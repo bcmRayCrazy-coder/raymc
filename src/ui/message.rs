@@ -28,6 +28,9 @@ pub enum Message {
     State(StateMessage),
     UpdatePageState(Box<AppState>),
 
+    // Media Control
+    MediaControl(MediaControlMessage),
+
     // Page
     OnPageShow,
 
@@ -69,6 +72,13 @@ pub enum PlayerMessage {
 
     InsertJumpNext(PlaySong),
     InsertJumpNextAlbum(AlbumName, PathBuf),
+}
+
+#[derive(Debug, Clone)]
+pub enum MediaControlMessage {
+    UpdateSong(Option<PlaySong>),
+
+    Init,
 }
 
 #[derive(Debug, Clone)]

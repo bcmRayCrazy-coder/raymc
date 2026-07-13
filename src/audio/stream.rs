@@ -6,25 +6,14 @@ use cpal::{
     traits::{DeviceTrait, StreamTrait},
 };
 
-#[derive(Clone)]
+#[derive(Debug, Clone)]
+#[allow(unused)]
 pub enum AudioError {
     BuildStreamError(cpal::Error),
     UnsupportFormat(SampleFormat),
     PlayStreamError(cpal::Error),
     PauseStreamError(cpal::Error),
     StreamNotBuild,
-}
-
-impl Debug for AudioError {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        match self {
-            Self::BuildStreamError(arg0) => f.debug_tuple("BuildStreamError").field(arg0).finish(),
-            Self::UnsupportFormat(arg0) => f.debug_tuple("UnsupportFormat").field(arg0).finish(),
-            Self::PlayStreamError(arg0) => f.debug_tuple("PlayStreamError").field(arg0).finish(),
-            Self::PauseStreamError(arg0) => f.debug_tuple("PauseStreamError").field(arg0).finish(),
-            Self::StreamNotBuild => write!(f, "StreamNotBuild"),
-        }
-    }
 }
 
 pub struct AudioStream {

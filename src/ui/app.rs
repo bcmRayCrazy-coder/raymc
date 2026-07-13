@@ -6,6 +6,7 @@ use iced::{
 
 use crate::{
     audio::manager::AudioManager,
+    media_control::manager::MediaControlManager,
     player::manager::PlayerManager,
     ui::{
         message::{Message, StateMessage},
@@ -43,6 +44,7 @@ pub struct App {
     pub view_page_manager: ViewPageManager,
     pub audio_manager: AudioManager,
     pub player_manager: PlayerManager,
+    pub media_control_manager: Option<MediaControlManager>,
 
     pub state: AppState,
 }
@@ -53,6 +55,7 @@ impl App {
             view_page_manager: ViewPageManager::new(),
             audio_manager: AudioManager::default(),
             player_manager: PlayerManager::default(),
+            media_control_manager: MediaControlManager::new().ok(),
 
             state: AppState::default(),
         }
@@ -77,6 +80,9 @@ impl App {
         match message {
             Message::Audio(audio_message) => self.update_audio(audio_message),
             Message::Player(player_message) => self.update_player(player_message),
+            Message::MediaControl(media_control_message) => {
+                self.update_media_control(media_control_message)
+            }
             Message::State(state_message) => self.update_state(state_message),
 
             other => self.view_page_manager.update(other),

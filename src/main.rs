@@ -3,6 +3,7 @@ mod bluetooth;
 mod cache;
 mod config;
 mod embed;
+mod media_control;
 mod player;
 mod ui;
 
